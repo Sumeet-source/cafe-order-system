@@ -21,6 +21,7 @@ export default function Feedback() {
   const [selectedTags, setSelectedTags] = useState([]);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const toggleTag = (label) => {
     setSelectedTags(prev =>
@@ -29,21 +30,22 @@ export default function Feedback() {
   };
 
   const submitFeedback = async () => {
-    if (rating === 0) return alert('Please select a rating');
-    if (!orderId) return alert('Missing order ID');
+    if (rating === 0) return setErrorMsg('Please select a star rating');
+    if (!orderId) return setErrorMsg('Missing order ID. Please rescan the QR code.');
 
     setLoading(true);
+    setErrorMsg('');
     try {
       const res = await fetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderId, rating, comment, tags: selectedTags }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      const data = await res.json().catch(() => ({ error: 'Server error' }));
+      if (!res.ok) throw new Error(data.error || 'Something went wrong');
       setSubmitted(true);
     } catch (err) {
-      alert(err.message);
+      setErrorMsg(err.message);
     } finally {
       setLoading(false);
     }
@@ -59,9 +61,27 @@ export default function Feedback() {
             Your feedback helps us serve you better.<br />
             We hope to see you again soon!
           </p>
-          <div className="text-4xl mb-6">⭐ {rating}/5</div>
+          <div className="text-4xl mb-6 text-amber-500">{'★'.repeat(rating)}</div>
           <Link href={`/order?table=1`} className="inline-block w-full bg-emerald-700 text-white px-6 py-4 rounded-xl font-bold hover:bg-emerald-800 transition">
             Order Again
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Missing orderId
+  if (!orderId) {
+    return (
+      <div className="min-h-screen bg-stone-100 flex items-center justify-center p-6">
+        <div className="bg-white p-10 rounded-3xl shadow-xl max-w-md w-full text-center">
+          <div className="text-6xl mb-4">🤔</div>
+          <h1 className="text-2xl font-serif font-bold text-stone-800 mb-3">No Order Found</h1>
+          <p className="text-stone-600 mb-6">
+            We couldn't find an order to review. Please scan the QR code at your table to place an order first.
+          </p>
+          <Link href="/order?table=1" className="inline-block bg-emerald-700 text-white px-6 py-3 rounded-xl font-bold hover:bg-emerald-800 transition">
+            Back to Menu
           </Link>
         </div>
       </div>
@@ -146,6 +166,13 @@ export default function Feedback() {
           />
           <p className="text-right text-[10px] text-stone-400 mt-1">{comment.length}/500</p>
         </div>
+
+        {/* Error Message */}
+        {errorMsg && (
+          <div className="mb-4 bg-red-50 border-l-4 border-red-500 p-3 rounded">
+            <p className="text-red-700 text-sm font-medium">{errorMsg}</p>
+          </div>
+        )}
 
         {/* Submit */}
         <button
