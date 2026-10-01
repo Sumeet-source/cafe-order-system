@@ -9,7 +9,7 @@ export default function Home() {
 
       <div className="z-10 text-center max-w-2xl">
         <h1 className="text-6xl font-serif font-bold text-stone-800 mb-4 tracking-tight">
-          Bird Tree Cafe
+          House Bird Cafe
         </h1>
         <p className="text-xl text-stone-600 mb-10 font-light">
           Fresh brews, warm vibes, and a seamless QR ordering experience.
