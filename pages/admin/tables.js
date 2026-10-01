@@ -22,7 +22,7 @@ export default function Tables() {
   return (
     <div className="min-h-screen bg-stone-100 p-6">
       <header className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 max-w-6xl mx-auto">
-        <h1 className="text-3xl font-serif font-bold text-stone-800">Bird Tree Cafe - QR Codes</h1>
+        <h1 className="text-3xl font-serif font-bold text-stone-800">House Bird Cafe - QR Codes</h1>
         <div className="flex items-center gap-3">
           <a href="/admin/dashboard" className="text-stone-600 hover:text-stone-900 font-medium text-sm underline">← Back to Dashboard</a>
         </div>

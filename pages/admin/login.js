@@ -22,7 +22,7 @@ export default function AdminLogin() {
     <div className="min-h-screen bg-stone-100 flex items-center justify-center p-6">
       <form onSubmit={submit} className="bg-white p-10 rounded-2xl shadow-xl w-full max-w-sm border border-stone-200">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-serif font-bold text-stone-800">Bird Tree Cafe</h1>
+          <h1 className="text-3xl font-serif font-bold text-stone-800">House Bird Cafe</h1>
           <p className="text-stone-500 text-sm mt-1">Admin Portal</p>
         </div>
         <input

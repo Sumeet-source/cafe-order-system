@@ -74,9 +74,10 @@ export default function Dashboard() {
       <header className="bg-stone-900 text-white p-4 shadow-lg flex justify-between items-center">
         <div className="flex items-center gap-3">
           <span className="text-2xl">🌳</span>
-          <h1 className="text-xl font-serif font-bold tracking-wide">Bird Tree Cafe - Kitchen</h1>
+          <h1 className="text-xl font-serif font-bold tracking-wide">House Bird Cafe - Kitchen</h1>
         </div>
         <div className="flex gap-4 items-center">
+          <a href="/admin/analytics" className="text-sm font-medium hover:text-emerald-400 transition">Analytics</a>
           <a href="/admin/menu" className="text-sm font-medium hover:text-emerald-400 transition">Menu</a>
           <a href="/admin/tables" className="text-sm font-medium hover:text-emerald-400 transition">QR Codes</a>
           <button onClick={logout} className="text-sm bg-stone-700 px-4 py-1.5 rounded-md hover:bg-red-600 transition">Logout</button>

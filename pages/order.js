@@ -64,7 +64,7 @@ export default function OrderPage() {
         key: createData.keyId,
         amount: createData.amount,
         currency: 'INR',
-        name: 'Bird Tree Cafe',
+        name: 'House Bird Cafe',
         description: `Table ${table}`,
         order_id: createData.orderId,
         prefill: { name },
@@ -107,7 +107,7 @@ export default function OrderPage() {
       {/* Hero Header */}
       <div className="relative h-64 bg-cover bg-center" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=1000&auto=format&fit=crop")' }}>
         <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-stone-900/60 to-transparent flex flex-col items-center justify-end pb-8 text-white">
-          <h1 className="text-4xl font-serif font-bold tracking-wider drop-shadow-lg">Bird Tree Cafe</h1>
+          <h1 className="text-4xl font-serif font-bold tracking-wider drop-shadow-lg">House Bird Cafe</h1>
           <p className="mt-2 text-emerald-200 font-medium tracking-wide bg-stone-900/50 px-4 py-1 rounded-full backdrop-blur-sm">Table {table || '...'} • Scan • Order • Enjoy</p>
         </div>
       </div>
