@@ -6,8 +6,8 @@ export default function OrderHistory() {
   const [orders, setOrders] = useState([]);
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
-  // Filters
   const [from, setFrom] = useState(new Date().toISOString().split('T')[0]);
   const [to, setTo] = useState(new Date().toISOString().split('T')[0]);
   const [status, setStatus] = useState('ALL');
@@ -41,6 +41,22 @@ export default function OrderHistory() {
     setFrom(past.toISOString().split('T')[0]);
     setTo(today.toISOString().split('T')[0]);
     setTimeout(fetchHistory, 100);
+  };
+
+  const downloadCSV = (type) => {
+    setDownloading(true);
+    const params = new URLSearchParams({ from, to, status, table, export: type });
+    const url = `/api/orders/history?${params}`;
+
+    // Trigger browser download
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    setTimeout(() => setDownloading(false), 1500);
   };
 
   const statusColor = (s) => ({
@@ -112,8 +128,8 @@ export default function OrderHistory() {
           </div>
         </form>
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        {/* Summary + Export Buttons */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <div className="bg-white p-5 rounded-xl shadow-sm border border-stone-200">
             <p className="text-xs font-bold text-stone-500 uppercase">Total Orders</p>
             <p className="text-3xl font-bold text-stone-800 mt-1">{orders.length}</p>
@@ -122,9 +138,25 @@ export default function OrderHistory() {
             <p className="text-xs font-bold text-emerald-100 uppercase">Total Revenue</p>
             <p className="text-3xl font-bold mt-1">₹{totalRevenue}</p>
           </div>
+          <button
+            onClick={() => downloadCSV('csv')}
+            disabled={downloading || orders.length === 0}
+            className="bg-stone-800 hover:bg-stone-900 disabled:bg-stone-400 disabled:cursor-not-allowed text-white p-5 rounded-xl shadow-sm font-bold flex flex-col justify-center items-start transition"
+          >
+            <span className="text-2xl">📥</span>
+            <span className="text-sm mt-1">{downloading ? 'Downloading...' : 'Download Full Orders CSV'}</span>
+          </button>
+          <button
+            onClick={() => downloadCSV('summary')}
+            disabled={downloading || orders.length === 0}
+            className="bg-emerald-700 hover:bg-emerald-800 disabled:bg-stone-400 disabled:cursor-not-allowed text-white p-5 rounded-xl shadow-sm font-bold flex flex-col justify-center items-start transition"
+          >
+            <span className="text-2xl">📊</span>
+            <span className="text-sm mt-1">{downloading ? 'Downloading...' : 'Download Summary CSV'}</span>
+          </button>
         </div>
 
-        {/* Orders List */}
+        {/* Orders Table */}
         {loading ? (
           <p className="text-center text-stone-500 py-10 animate-pulse">Loading...</p>
         ) : orders.length === 0 ? (
