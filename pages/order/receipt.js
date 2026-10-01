@@ -8,6 +8,7 @@ export default function Receipt() {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
+  const [alreadyReviewed, setAlreadyReviewed] = useState(false);
 
   useEffect(() => {
     if (!orderId) return;
@@ -90,10 +91,10 @@ export default function Receipt() {
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.text('Subtotal:', 140, finalY);
-    doc.text(`Rs. ${order.subtotal.toFixed(2)}`, 195, finalY, { align: 'right' });
+    doc.text(`Rs. ${order.subtotal?.toFixed(2)}`, 195, finalY, { align: 'right' });
 
     doc.text(`GST (${order.gstRate}%):`, 140, finalY + 7);
-    doc.text(`Rs. ${order.gstAmount.toFixed(2)}`, 195, finalY + 7, { align: 'right' });
+    doc.text(`Rs. ${order.gstAmount?.toFixed(2)}`, 195, finalY + 7, { align: 'right' });
 
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
@@ -104,7 +105,7 @@ export default function Receipt() {
     doc.setFontSize(10);
     doc.setTextColor(4, 120, 87);
     doc.setFont('helvetica', 'bold');
-    doc.text('✓ PAID via Razorpay', 15, finalY + 25);
+    doc.text('PAID via Razorpay', 15, finalY + 25);
 
     // Footer
     doc.setTextColor(120, 120, 120);
@@ -271,6 +272,22 @@ export default function Receipt() {
           </button>
         </div>
 
+        {/* Feedback Prompt */}
+        {!alreadyReviewed && (
+          <div className="mt-6 bg-gradient-to-br from-amber-50 to-amber-100 border-2 border-amber-300 rounded-2xl p-6 text-center shadow-sm">
+            <p className="text-4xl mb-2">⭐</p>
+            <p className="font-bold text-stone-800 text-lg mb-1">How was your visit?</p>
+            <p className="text-xs text-stone-600 mb-4">Your feedback helps us serve you better</p>
+            <Link
+              href={`/order/feedback?orderId=${order._id}`}
+              className="inline-block w-full bg-amber-500 text-white px-6 py-3 rounded-xl font-bold hover:bg-amber-600 transition shadow-md"
+            >
+              Rate Your Experience
+            </Link>
+          </div>
+        )}
+
+        {/* Order More */}
         <div className="text-center mt-6 mb-8">
           <Link href={`/order?table=${order.tableNumber}`} className="text-emerald-700 font-medium underline">
             Order More
