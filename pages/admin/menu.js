@@ -61,7 +61,7 @@ export default function AdminMenu() {
   return (
     <div className="min-h-screen bg-stone-100 p-6">
       <header className="mb-8 flex justify-between items-center max-w-6xl mx-auto">
-        <h1 className="text-3xl font-serif font-bold text-stone-800">Bird Tree Cafe - Menu</h1>
+        <h1 className="text-3xl font-serif font-bold text-stone-800">House Bird Cafe - Menu</h1>
         <a href="/admin/dashboard" className="bg-stone-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-stone-900 transition">← Back to Dashboard</a>
       </header>
 
