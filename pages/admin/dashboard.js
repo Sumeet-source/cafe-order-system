@@ -98,10 +98,11 @@ export default function Dashboard() {
           <h1 className="text-xl font-serif font-bold tracking-wide">House Bird Cafe - Kitchen</h1>
         </div>
         <div className="flex gap-4 items-center">
-          <a href="/admin/analytics" className="text-sm font-medium hover:text-emerald-400 transition">Analytics</a>
-          <a href="/admin/menu" className="text-sm font-medium hover:text-emerald-400 transition">Menu</a>
-          <a href="/admin/tables" className="text-sm font-medium hover:text-emerald-400 transition">QR Codes</a>
-          <button onClick={logout} className="text-sm bg-stone-700 px-4 py-1.5 rounded-md hover:bg-red-600 transition">Logout</button>
+           <a href="/admin/analytics" className="text-sm font-medium hover:text-emerald-400 transition">Analytics</a>
+  <a href="/admin/history" className="text-sm font-medium hover:text-emerald-400 transition">History</a>
+  <a href="/admin/menu" className="text-sm font-medium hover:text-emerald-400 transition">Menu</a>
+  <a href="/admin/tables" className="text-sm font-medium hover:text-emerald-400 transition">QR Codes</a>
+  <button onClick={logout} className="text-sm bg-stone-700 px-4 py-1.5 rounded-md hover:bg-red-600 transition">Logout</button>
         </div>
       </header>
 
