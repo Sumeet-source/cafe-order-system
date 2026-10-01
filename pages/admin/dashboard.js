@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 
 const STATUS_FLOW = {
-  PLACED:    { next: 'PREPARING', label: 'Start Preparing', color: 'bg-yellow-500' },
-  PREPARING: { next: 'READY',     label: 'Mark Ready',       color: 'bg-blue-500'   },
-  READY:     { next: 'DELIVERED', label: 'Mark Delivered',   color: 'bg-green-600'  },
+  PLACED:    { next: 'PREPARING', label: 'Start Preparing', color: 'bg-amber-500 hover:bg-amber-600' },
+  PREPARING: { next: 'READY',     label: 'Mark Ready',       color: 'bg-blue-600 hover:bg-blue-700'   },
+  READY:     { next: 'DELIVERED', label: 'Mark Delivered',   color: 'bg-emerald-600 hover:bg-emerald-700'  },
 };
 
 export default function Dashboard() {
@@ -50,7 +50,6 @@ export default function Dashboard() {
     fetchOrders();
     const t = setInterval(fetchOrders, 5000);
     return () => clearInterval(t);
-    // eslint-disable-next-line
   }, []);
 
   const updateStatus = async (id, next) => {
@@ -71,59 +70,89 @@ export default function Dashboard() {
   orders.forEach((o) => { if (grouped[o.orderStatus]) grouped[o.orderStatus].push(o); });
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-amber-800 text-white p-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold">🍽️ Orders Dashboard</h1>
-        <div className="flex gap-3">
-          <a href="/admin/menu" className="text-sm underline">Menu</a>
-          <a href="/admin/tables" className="text-sm underline">QR Codes</a>
-          <button onClick={logout} className="text-sm bg-amber-900 px-3 py-1 rounded">Logout</button>
+    <div className="min-h-screen bg-stone-100">
+      <header className="bg-stone-900 text-white p-4 shadow-lg flex justify-between items-center">
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">🌳</span>
+          <h1 className="text-xl font-serif font-bold tracking-wide">Bird Tree Cafe - Kitchen</h1>
+        </div>
+        <div className="flex gap-4 items-center">
+          <a href="/admin/menu" className="text-sm font-medium hover:text-emerald-400 transition">Menu</a>
+          <a href="/admin/tables" className="text-sm font-medium hover:text-emerald-400 transition">QR Codes</a>
+          <button onClick={logout} className="text-sm bg-stone-700 px-4 py-1.5 rounded-md hover:bg-red-600 transition">Logout</button>
         </div>
       </header>
 
       {loading ? (
-        <p className="text-center mt-20 text-gray-500">Loading...</p>
+        <div className="flex items-center justify-center h-96">
+          <p className="text-xl text-stone-500 animate-pulse">Loading orders...</p>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6 max-w-7xl mx-auto">
           {['PLACED', 'PREPARING', 'READY'].map((status) => (
-            <section key={status}>
-              <h2 className="font-bold text-lg mb-3 capitalize">
-                {status.toLowerCase()} ({grouped[status].length})
-              </h2>
-              <div className="space-y-3">
+            <div key={status} className="flex flex-col">
+              <div className="flex justify-between items-center mb-4 px-2">
+                <h2 className="font-bold text-lg text-stone-700 uppercase tracking-wider">
+                  {status === 'PLACED' ? '🆕 New Orders' : status === 'PREPARING' ? '👨‍🍳 Preparing' : '✅ Ready to Serve'}
+                </h2>
+                <span className="bg-stone-200 text-stone-700 font-bold px-3 py-1 rounded-full text-sm shadow-inner">
+                  {grouped[status].length}
+                </span>
+              </div>
+              
+              <div className="space-y-4 flex-1">
                 {grouped[status].map((order) => (
-                  <div key={order._id} className="bg-white p-4 rounded-lg shadow">
-                    <div className="flex justify-between mb-2">
-                      <span className="font-bold">Table {order.tableNumber}</span>
-                      <span className="text-xs text-gray-500">
-                        {new Date(order.createdAt).toLocaleTimeString()}
+                  <div key={order._id} className="bg-white rounded-xl shadow-md overflow-hidden border-l-4 border-emerald-500">
+                    <div className="p-4 border-b border-stone-100 bg-stone-50 flex justify-between items-center">
+                      <span className="font-extrabold text-xl text-stone-800">Table {order.tableNumber}</span>
+                      <span className="text-sm font-medium text-stone-500 bg-white px-2 py-1 rounded shadow-sm border border-stone-100">
+                        {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-600 mb-2">👤 {order.customerName}</p>
-                    <ul className="text-sm space-y-1 mb-3 border-y py-2">
-                      {order.items.map((it, i) => (
-                        <li key={i} className="flex justify-between">
-                          <span>{it.name} × {it.quantity}</span>
-                          <span>₹{it.price * it.quantity}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <p className="font-bold text-right mb-3">Total: ₹{order.totalAmount}</p>
+                    
+                    <div className="p-4">
+                      <p className="text-sm font-medium text-stone-500 mb-3 flex items-center gap-2">
+                        <span className="text-lg">👤</span> {order.customerName}
+                      </p>
+                      <ul className="space-y-2 mb-4">
+                        {order.items.map((it, i) => (
+                          <li key={i} className="flex justify-between text-stone-700 font-medium">
+                            <span className="flex items-center gap-2">
+                              <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-0.5 rounded">
+                                {it.quantity}x
+                              </span>
+                              {it.name}
+                            </span>
+                            <span className="text-stone-500">₹{it.price * it.quantity}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      <div className="flex justify-between items-center border-t border-stone-100 pt-3">
+                        <span className="font-bold text-stone-600">Total</span>
+                        <span className="font-extrabold text-xl text-stone-900">₹{order.totalAmount}</span>
+                      </div>
+                    </div>
+
                     {STATUS_FLOW[order.orderStatus] && (
-                      <button
-                        onClick={() => updateStatus(order._id, STATUS_FLOW[order.orderStatus].next)}
-                        className={`w-full text-white py-2 rounded font-medium ${STATUS_FLOW[order.orderStatus].color}`}
-                      >
-                        {STATUS_FLOW[order.orderStatus].label}
-                      </button>
+                      <div className="p-4 bg-stone-50 border-t border-stone-100">
+                        <button
+                          onClick={() => updateStatus(order._id, STATUS_FLOW[order.orderStatus].next)}
+                          className={`w-full text-white py-3 rounded-lg font-bold text-lg shadow-sm transition transform hover:scale-[1.02] ${STATUS_FLOW[order.orderStatus].color}`}
+                        >
+                          {STATUS_FLOW[order.orderStatus].label}
+                        </button>
+                      </div>
                     )}
                   </div>
                 ))}
+                
                 {grouped[status].length === 0 && (
-                  <p className="text-sm text-gray-400 italic">No orders</p>
+                  <div className="bg-stone-50 border-2 border-dashed border-stone-200 rounded-xl p-8 text-center text-stone-400">
+                    No orders here
+                  </div>
                 )}
               </div>
-            </section>
+            </div>
           ))}
         </div>
       )}
