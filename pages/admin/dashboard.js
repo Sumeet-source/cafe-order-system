@@ -10,8 +10,10 @@ const STATUS_FLOW = {
 export default function Dashboard() {
   const router = useRouter();
   const [orders, setOrders] = useState([]);
+  const [waiterCalls, setWaiterCalls] = useState([]);
   const [loading, setLoading] = useState(true);
   const lastCount = useRef(0);
+  const lastWaiterCount = useRef(0);
   const audioCtx = useRef(null);
 
   const beep = () => {
@@ -43,6 +45,16 @@ export default function Dashboard() {
     if (placed.length > lastCount.current && lastCount.current !== 0) beep();
     lastCount.current = placed.length;
     setOrders(all);
+
+    // Fetch waiter calls
+    const res4 = await fetch('/api/waiter-call');
+    if (res4.ok) {
+      const calls = await res4.json();
+      if (calls.length > lastWaiterCount.current && lastWaiterCount.current !== 0) beep();
+      lastWaiterCount.current = calls.length;
+      setWaiterCalls(calls);
+    }
+
     setLoading(false);
   };
 
@@ -57,6 +69,15 @@ export default function Dashboard() {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ orderStatus: next }),
+    });
+    fetchOrders();
+  };
+
+  const resolveWaiterCall = async (id) => {
+    await fetch('/api/waiter-call', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
     });
     fetchOrders();
   };
@@ -83,6 +104,41 @@ export default function Dashboard() {
           <button onClick={logout} className="text-sm bg-stone-700 px-4 py-1.5 rounded-md hover:bg-red-600 transition">Logout</button>
         </div>
       </header>
+
+      {/* Waiter Calls Banner */}
+      {waiterCalls.length > 0 && (
+        <div className="bg-red-50 border-b-4 border-red-500 p-4">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="font-bold text-red-800 text-lg mb-3 flex items-center gap-2">
+              🔔 Waiter Calls ({waiterCalls.length})
+            </h2>
+            <div className="flex flex-wrap gap-3">
+              {waiterCalls.map((call) => (
+                <div key={call._id} className="bg-white border-2 border-red-400 rounded-xl p-4 flex items-center gap-4 shadow-lg animate-pulse">
+                  <div className="text-3xl">
+                    {call.callType === 'WATER' ? '💧' : call.callType === 'BILL' ? '🧾' : '🛎️'}
+                  </div>
+                  <div>
+                    <p className="font-bold text-stone-800">Table {call.tableNumber}</p>
+                    <p className="text-xs text-stone-500">
+                      {call.callType === 'WATER' ? 'Bring Water' : call.callType === 'BILL' ? 'Get Bill' : 'Call Waiter'}
+                    </p>
+                    <p className="text-[10px] text-stone-400">
+                      {new Date(call.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => resolveWaiterCall(call._id)}
+                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold text-sm"
+                  >
+                    Done
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <div className="flex items-center justify-center h-96">

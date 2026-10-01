@@ -11,6 +11,8 @@ export default function OrderPage() {
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isWaiterOpen, setIsWaiterOpen] = useState(false);
+  const [waiterSent, setWaiterSent] = useState(false);
 
   useEffect(() => {
     fetch('/api/menu')
@@ -38,6 +40,26 @@ export default function OrderPage() {
 
   const cartEntries = Object.entries(cart);
   const total = cartEntries.reduce((s, [, { item, qty }]) => s + item.price * qty, 0);
+
+  const callWaiter = async (callType) => {
+    try {
+      const res = await fetch('/api/waiter-call', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tableNumber: Number(table), callType }),
+      });
+      if (res.ok) {
+        setWaiterSent(true);
+        setIsWaiterOpen(false);
+        setTimeout(() => setWaiterSent(false), 120000); // reset after 2 minutes
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Failed to call waiter');
+      }
+    } catch {
+      alert('Something went wrong');
+    }
+  };
 
   const handleCheckout = async () => {
     if (!cartEntries.length) return alert('Cart is empty');
@@ -68,7 +90,7 @@ export default function OrderPage() {
         description: `Table ${table}`,
         order_id: createData.orderId,
         prefill: { name },
-        theme: { color: '#047857' }, // Emerald-700
+        theme: { color: '#047857' },
         handler: async (response) => {
           const verifyRes = await fetch('/api/payment/verify', {
             method: 'POST',
@@ -143,7 +165,7 @@ export default function OrderPage() {
 
       {/* Floating Cart Button */}
       {cartEntries.length > 0 && (
-        <div className="fixed bottom-6 left-0 right-0 flex justify-center px-4 z-40">
+        <div className="fixed bottom-6 left-0 right-0 flex justify-center px-4 z-30">
           <button 
             onClick={() => setIsCartOpen(true)}
             className="bg-stone-900 text-white px-6 py-4 rounded-full shadow-2xl flex items-center gap-4 hover:bg-stone-800 transition transform hover:scale-105"
@@ -153,6 +175,61 @@ export default function OrderPage() {
             </span>
             <span className="font-medium tracking-wide">View Cart • ₹{total}</span>
           </button>
+        </div>
+      )}
+
+      {/* Call Waiter Floating Button */}
+      <button
+        onClick={() => setIsWaiterOpen(true)}
+        disabled={waiterSent}
+        className={`fixed bottom-6 left-6 z-40 w-16 h-16 rounded-full shadow-2xl flex flex-col items-center justify-center text-white font-bold transition transform hover:scale-110 ${
+          waiterSent ? 'bg-stone-400 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700 animate-pulse'
+        }`}
+      >
+        <span className="text-2xl">{waiterSent ? '✓' : '🛎️'}</span>
+        <span className="text-[10px] mt-0.5">{waiterSent ? 'Sent' : 'Call'}</span>
+      </button>
+
+      {/* Call Waiter Modal */}
+      {isWaiterOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-stone-900/70 backdrop-blur-sm" onClick={() => setIsWaiterOpen(false)} />
+          <div className="relative bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl">
+            <h3 className="text-2xl font-serif font-bold text-stone-800 mb-2 text-center">
+              How can we help?
+            </h3>
+            <p className="text-stone-500 text-sm text-center mb-6">Table {table}</p>
+            
+            <div className="space-y-3">
+              <button onClick={() => callWaiter('WAITER')} className="w-full bg-stone-100 hover:bg-stone-200 text-stone-800 p-4 rounded-2xl flex items-center gap-4 transition">
+                <span className="text-3xl">🛎️</span>
+                <div className="text-left">
+                  <p className="font-bold">Call Waiter</p>
+                  <p className="text-xs text-stone-500">Need any assistance</p>
+                </div>
+              </button>
+              
+              <button onClick={() => callWaiter('WATER')} className="w-full bg-blue-50 hover:bg-blue-100 text-blue-900 p-4 rounded-2xl flex items-center gap-4 transition">
+                <span className="text-3xl">💧</span>
+                <div className="text-left">
+                  <p className="font-bold">Bring Water</p>
+                  <p className="text-xs text-blue-600">Refill your glass</p>
+                </div>
+              </button>
+              
+              <button onClick={() => callWaiter('BILL')} className="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-900 p-4 rounded-2xl flex items-center gap-4 transition">
+                <span className="text-3xl">🧾</span>
+                <div className="text-left">
+                  <p className="font-bold">Get Bill</p>
+                  <p className="text-xs text-emerald-600">Ready to pay</p>
+                </div>
+              </button>
+            </div>
+
+            <button onClick={() => setIsWaiterOpen(false)} className="w-full mt-4 text-stone-500 font-medium py-2">
+              Cancel
+            </button>
+          </div>
         </div>
       )}
 
