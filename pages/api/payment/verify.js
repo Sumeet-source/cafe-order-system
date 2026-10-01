@@ -30,11 +30,20 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid signature' });
   }
 
+  // Calculate GST breakdown (5% inclusive)
+  const gstRate = 5;
+  const total = Number(totalAmount);
+  const subtotal = +(total / (1 + gstRate / 100)).toFixed(2);
+  const gstAmount = +(total - subtotal).toFixed(2);
+
   const order = await Order.create({
     tableNumber:       Number(tableNumber),
     customerName:      customerName || 'Guest',
     items,
-    totalAmount:       Number(totalAmount),
+    subtotal,
+    gstAmount,
+    gstRate,
+    totalAmount:       total,
     razorpayOrderId:   razorpay_order_id,
     razorpayPaymentId: razorpay_payment_id,
     paymentStatus:     'PAID',

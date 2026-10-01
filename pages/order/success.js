@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export default function Success() {
   const router = useRouter();
-  const { table } = router.query;
+  const { table, orderId } = router.query;
 
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col items-center justify-center p-6 text-center">
@@ -14,9 +14,17 @@ export default function Success() {
           Your order has been sent to the kitchen.<br />
           We'll call you at <span className="font-bold text-emerald-700">Table {table || ''}</span> when it's ready.
         </p>
-        <Link href={`/order?table=${table || 1}`} className="block w-full bg-emerald-700 text-white px-6 py-4 rounded-xl font-bold hover:bg-emerald-800 transition shadow-md">
-          Order More
-        </Link>
+
+        <div className="space-y-3">
+          {orderId && (
+            <Link href={`/order/receipt?orderId=${orderId}`} className="block w-full bg-emerald-700 text-white px-6 py-4 rounded-xl font-bold hover:bg-emerald-800 transition shadow-md">
+              🧾 View / Download Receipt
+            </Link>
+          )}
+          <Link href={`/order?table=${table || 1}`} className="block w-full bg-stone-800 text-white px-6 py-4 rounded-xl font-bold hover:bg-stone-900 transition shadow-md">
+            Order More
+          </Link>
+        </div>
       </div>
     </div>
   );
