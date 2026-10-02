@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
+import ThemeToggle from '../../components/ThemeToggle';
 
 const STATUS_FLOW = {
   PLACED:    { next: 'PREPARING', label: 'Start Preparing', glow: 'shadow-amber-500/50',   gradient: 'from-amber-400 to-orange-500',   hover: 'hover:from-amber-300 hover:to-orange-400' },
@@ -113,8 +114,8 @@ export default function Dashboard() {
 
       {/* ============ HEADER ============ */}
       <header className="sticky top-0 z-30 backdrop-blur-xl bg-white/5 border-b border-white/10">
-        {/* Top row: Logo + Logout */}
-        <div className="px-4 py-3 flex justify-between items-center">
+        {/* Top row: Logo + Theme Toggle + Logout */}
+        <div className="px-4 py-3 flex justify-between items-center gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <img
               src="/logo.png"
@@ -126,12 +127,16 @@ export default function Dashboard() {
               <span className="sm:hidden">House Bird Cafe</span>
             </h1>
           </div>
-          <button
-            onClick={logout}
-            className="flex-shrink-0 text-xs bg-red-500/80 hover:bg-red-500 backdrop-blur-md text-white px-3 py-2 rounded-xl border border-white/20 shadow-lg shadow-red-500/30 transition font-medium"
-          >
-            Logout
-          </button>
+
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <ThemeToggle className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20" />
+            <button
+              onClick={logout}
+              className="text-xs bg-red-500/80 hover:bg-red-500 backdrop-blur-md text-white px-3 py-2 rounded-xl border border-white/20 shadow-lg shadow-red-500/30 transition font-medium"
+            >
+              Logout
+            </button>
+          </div>
         </div>
 
         {/* Nav links - horizontal scroll on mobile */}
@@ -253,7 +258,7 @@ export default function Dashboard() {
                 mobileTab === status ? 'block' : 'hidden'
               } md:block`}
             >
-              {/* Column header - hidden on mobile (we use tabs) */}
+              {/* Column header - hidden on mobile */}
               <div className="hidden md:flex justify-between items-center mb-4 px-2">
                 <h2 className="font-bold text-lg text-white uppercase tracking-wider">
                   {status === 'PLACED' ? '🆕 New Orders' : status === 'PREPARING' ? '👨‍🍳 Preparing' : '✅ Ready to Serve'}

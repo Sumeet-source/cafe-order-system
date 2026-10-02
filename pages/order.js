@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Script from 'next/script';
+import ThemeToggle from '../components/ThemeToggle';
 
 export default function OrderPage() {
   const router = useRouter();
@@ -123,10 +124,10 @@ export default function OrderPage() {
   const categories = [...new Set(menu.map((m) => m.category || 'General'))];
 
   return (
-    <>
+    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 transition-colors">
       <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
-      
-      {/* Hero Header with Logo */}
+
+      {/* Hero Header */}
       <div
         className="relative h-72 bg-cover bg-center"
         style={{
@@ -135,7 +136,12 @@ export default function OrderPage() {
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-stone-900/70 to-stone-900/40 flex flex-col items-center justify-end pb-6 text-white">
-          {/* Logo Badge */}
+          {/* Theme toggle top-right */}
+          <div className="absolute top-4 right-4">
+            <ThemeToggle className="bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/30" />
+          </div>
+
+          {/* Logo */}
           <div className="bg-white rounded-full p-1 shadow-2xl ring-4 ring-white/30 mb-3">
             <img
               src="/logo.png"
@@ -155,14 +161,14 @@ export default function OrderPage() {
       {/* Menu Section */}
       <div className="max-w-3xl mx-auto px-4 py-6 pb-32">
         {menu.length === 0 && (
-          <p className="text-center text-stone-500 py-10 animate-pulse">
+          <p className="text-center text-stone-500 dark:text-stone-400 py-10 animate-pulse">
             Loading menu...
           </p>
         )}
 
         {categories.map((cat) => (
           <div key={cat} className="mb-8">
-            <h2 className="text-xl sm:text-2xl font-serif font-bold text-stone-800 mb-4 border-b-2 border-emerald-200 pb-2 inline-block">
+            <h2 className="text-xl sm:text-2xl font-serif font-bold text-stone-800 dark:text-stone-100 mb-4 border-b-2 border-emerald-200 dark:border-emerald-800 pb-2 inline-block">
               {cat}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -171,23 +177,27 @@ export default function OrderPage() {
                 .map((item) => (
                   <div
                     key={item._id}
-                    className={`bg-white rounded-xl p-4 shadow-sm border border-stone-100 flex justify-between items-center transition hover:shadow-md hover:border-emerald-200 ${
+                    className={`bg-white dark:bg-stone-900 rounded-xl p-4 shadow-sm border border-stone-100 dark:border-stone-800 flex justify-between items-center transition hover:shadow-md hover:border-emerald-200 dark:hover:border-emerald-700 ${
                       !item.isAvailable ? 'opacity-50 grayscale' : ''
                     }`}
                   >
                     <div className="flex-1 pr-4 min-w-0">
-                      <h3 className="font-bold text-stone-800 truncate">{item.name}</h3>
+                      <h3 className="font-bold text-stone-800 dark:text-stone-100 truncate">
+                        {item.name}
+                      </h3>
                       {item.description && (
-                        <p className="text-sm text-stone-500 mt-1 line-clamp-2">
+                        <p className="text-sm text-stone-500 dark:text-stone-400 mt-1 line-clamp-2">
                           {item.description}
                         </p>
                       )}
-                      <p className="text-emerald-700 font-bold mt-2">₹{item.price}</p>
+                      <p className="text-emerald-700 dark:text-emerald-400 font-bold mt-2">
+                        ₹{item.price}
+                      </p>
                     </div>
                     <button
                       disabled={!item.isAvailable}
                       onClick={() => addToCart(item)}
-                      className="shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white w-10 h-10 rounded-full flex items-center justify-center text-xl font-bold transition disabled:bg-stone-300 shadow-sm"
+                      className="shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white w-10 h-10 rounded-full flex items-center justify-center text-xl font-bold transition disabled:bg-stone-300 dark:disabled:bg-stone-700 shadow-sm"
                     >
                       +
                     </button>
@@ -203,9 +213,9 @@ export default function OrderPage() {
         <div className="fixed bottom-6 left-0 right-0 flex justify-center px-4 z-30">
           <button
             onClick={() => setIsCartOpen(true)}
-            className="bg-stone-900 text-white px-6 py-4 rounded-full shadow-2xl flex items-center gap-4 hover:bg-stone-800 transition transform hover:scale-105"
+            className="bg-stone-900 dark:bg-emerald-700 text-white px-6 py-4 rounded-full shadow-2xl flex items-center gap-4 hover:bg-stone-800 dark:hover:bg-emerald-600 transition transform hover:scale-105"
           >
-            <span className="bg-emerald-500 text-white font-bold rounded-full w-6 h-6 flex items-center justify-center text-sm shadow-inner">
+            <span className="bg-emerald-500 dark:bg-white dark:text-emerald-700 text-white font-bold rounded-full w-6 h-6 flex items-center justify-center text-sm shadow-inner">
               {cartEntries.reduce((s, [, { qty }]) => s + qty, 0)}
             </span>
             <span className="font-medium tracking-wide">View Cart • ₹{total}</span>
@@ -213,7 +223,7 @@ export default function OrderPage() {
         </div>
       )}
 
-      {/* Call Waiter Floating Button */}
+      {/* Call Waiter Button */}
       <button
         onClick={() => setIsWaiterOpen(true)}
         disabled={waiterSent}
@@ -227,59 +237,59 @@ export default function OrderPage() {
         <span className="text-[10px] mt-0.5">{waiterSent ? 'Sent' : 'Call'}</span>
       </button>
 
-      {/* Call Waiter Modal */}
+      {/* Waiter Modal */}
       {isWaiterOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
             className="absolute inset-0 bg-stone-900/70 backdrop-blur-sm"
             onClick={() => setIsWaiterOpen(false)}
           />
-          <div className="relative bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl">
-            <h3 className="text-2xl font-serif font-bold text-stone-800 mb-2 text-center">
+          <div className="relative bg-white dark:bg-stone-900 rounded-3xl p-6 max-w-sm w-full shadow-2xl">
+            <h3 className="text-2xl font-serif font-bold text-stone-800 dark:text-stone-100 mb-2 text-center">
               How can we help?
             </h3>
-            <p className="text-stone-500 text-sm text-center mb-6">
+            <p className="text-stone-500 dark:text-stone-400 text-sm text-center mb-6">
               Table {table}
             </p>
 
             <div className="space-y-3">
               <button
                 onClick={() => callWaiter('WAITER')}
-                className="w-full bg-stone-100 hover:bg-stone-200 text-stone-800 p-4 rounded-2xl flex items-center gap-4 transition"
+                className="w-full bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-100 p-4 rounded-2xl flex items-center gap-4 transition"
               >
                 <span className="text-3xl">🛎️</span>
                 <div className="text-left">
                   <p className="font-bold">Call Waiter</p>
-                  <p className="text-xs text-stone-500">Need any assistance</p>
+                  <p className="text-xs text-stone-500 dark:text-stone-400">Need any assistance</p>
                 </div>
               </button>
 
               <button
                 onClick={() => callWaiter('WATER')}
-                className="w-full bg-blue-50 hover:bg-blue-100 text-blue-900 p-4 rounded-2xl flex items-center gap-4 transition"
+                className="w-full bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-900 dark:text-blue-200 p-4 rounded-2xl flex items-center gap-4 transition"
               >
                 <span className="text-3xl">💧</span>
                 <div className="text-left">
                   <p className="font-bold">Bring Water</p>
-                  <p className="text-xs text-blue-600">Refill your glass</p>
+                  <p className="text-xs text-blue-600 dark:text-blue-300">Refill your glass</p>
                 </div>
               </button>
 
               <button
                 onClick={() => callWaiter('BILL')}
-                className="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-900 p-4 rounded-2xl flex items-center gap-4 transition"
+                className="w-full bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-900 dark:text-emerald-200 p-4 rounded-2xl flex items-center gap-4 transition"
               >
                 <span className="text-3xl">🧾</span>
                 <div className="text-left">
                   <p className="font-bold">Get Bill</p>
-                  <p className="text-xs text-emerald-600">Ready to pay</p>
+                  <p className="text-xs text-emerald-600 dark:text-emerald-300">Ready to pay</p>
                 </div>
               </button>
             </div>
 
             <button
               onClick={() => setIsWaiterOpen(false)}
-              className="w-full mt-4 text-stone-500 font-medium py-2"
+              className="w-full mt-4 text-stone-500 dark:text-stone-400 font-medium py-2"
             >
               Cancel
             </button>
@@ -291,17 +301,17 @@ export default function OrderPage() {
       {isCartOpen && (
         <div className="fixed inset-0 z-50 flex justify-end">
           <div
-            className="absolute inset-0 bg-stone-900/60 backdrop-blur-sm transition-opacity"
+            className="absolute inset-0 bg-stone-900/60 backdrop-blur-sm"
             onClick={() => setIsCartOpen(false)}
           />
-          <div className="relative w-full max-w-md bg-stone-50 h-full shadow-2xl flex flex-col">
-            <div className="p-6 border-b border-stone-200 flex justify-between items-center bg-white">
-              <h2 className="text-xl font-serif font-bold text-stone-800">
+          <div className="relative w-full max-w-md bg-stone-50 dark:bg-stone-900 h-full shadow-2xl flex flex-col">
+            <div className="p-6 border-b border-stone-200 dark:border-stone-800 flex justify-between items-center bg-white dark:bg-stone-950">
+              <h2 className="text-xl font-serif font-bold text-stone-800 dark:text-stone-100">
                 Your Order
               </h2>
               <button
                 onClick={() => setIsCartOpen(false)}
-                className="text-stone-400 hover:text-stone-800 text-3xl leading-none"
+                className="text-stone-400 hover:text-stone-800 dark:hover:text-stone-100 text-3xl leading-none"
               >
                 &times;
               </button>
@@ -311,27 +321,29 @@ export default function OrderPage() {
               {cartEntries.map(([id, { item, qty }]) => (
                 <div
                   key={id}
-                  className="flex justify-between items-center border-b border-stone-200 pb-4"
+                  className="flex justify-between items-center border-b border-stone-200 dark:border-stone-800 pb-4"
                 >
                   <div>
-                    <p className="font-semibold text-stone-800">{item.name}</p>
-                    <p className="text-emerald-700 font-bold">
+                    <p className="font-semibold text-stone-800 dark:text-stone-100">
+                      {item.name}
+                    </p>
+                    <p className="text-emerald-700 dark:text-emerald-400 font-bold">
                       ₹{item.price * qty}
                     </p>
                   </div>
-                  <div className="flex items-center gap-3 bg-white border border-stone-200 rounded-full px-3 py-1 shadow-sm">
+                  <div className="flex items-center gap-3 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-full px-3 py-1 shadow-sm">
                     <button
                       onClick={() => removeFromCart(id)}
-                      className="text-xl font-bold text-stone-500 hover:text-emerald-600"
+                      className="text-xl font-bold text-stone-500 dark:text-stone-400 hover:text-emerald-600"
                     >
                       −
                     </button>
-                    <span className="font-medium w-4 text-center text-stone-800">
+                    <span className="font-medium w-4 text-center text-stone-800 dark:text-stone-100">
                       {qty}
                     </span>
                     <button
                       onClick={() => addToCart(item)}
-                      className="text-xl font-bold text-stone-500 hover:text-emerald-600"
+                      className="text-xl font-bold text-stone-500 dark:text-stone-400 hover:text-emerald-600"
                     >
                       +
                     </button>
@@ -340,18 +352,18 @@ export default function OrderPage() {
               ))}
             </div>
 
-            <div className="p-6 border-t border-stone-200 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+            <div className="p-6 border-t border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950">
               <input
                 type="text"
                 placeholder="Your name (for the waiter)"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full border-stone-300 rounded-lg p-3 mb-4 focus:ring-emerald-500 focus:border-emerald-500 text-stone-800 placeholder-stone-400 border"
+                className="w-full border border-stone-300 dark:border-stone-700 rounded-lg p-3 mb-4 bg-white dark:bg-stone-800 focus:ring-emerald-500 focus:border-emerald-500 text-stone-800 dark:text-stone-100 placeholder-stone-400"
               />
               <button
                 onClick={handleCheckout}
                 disabled={loading}
-                className="w-full bg-emerald-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-emerald-800 transition disabled:bg-stone-400 shadow-md"
+                className="w-full bg-emerald-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-emerald-800 transition disabled:bg-stone-400 dark:disabled:bg-stone-700 shadow-md"
               >
                 {loading ? 'Processing...' : `Pay ₹${total}`}
               </button>
@@ -361,11 +373,11 @@ export default function OrderPage() {
       )}
 
       {/* Footer */}
-      <div className="text-center py-8 text-stone-300 text-xs">
-        <a href="/admin/login" className="hover:text-stone-400 transition">
+      <div className="text-center py-8 text-stone-400 dark:text-stone-600 text-xs">
+        <a href="/admin/login" className="hover:text-stone-500 dark:hover:text-stone-500 transition">
           House Bird Cafe · Admin
         </a>
       </div>
-    </>
+    </div>
   );
 }
