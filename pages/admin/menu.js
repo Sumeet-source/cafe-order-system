@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import ThemeToggle from '../../components/ThemeToggle';
 
 const EMPTY = { name: '', description: '', price: '', category: 'General', imageUrl: '', isAvailable: true };
 
@@ -8,6 +9,7 @@ export default function AdminMenu() {
   const [items, setItems] = useState([]);
   const [form, setForm] = useState(EMPTY);
   const [editingId, setEditingId] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   const load = async () => {
     const res = await fetch('/api/menu');
@@ -18,6 +20,7 @@ export default function AdminMenu() {
 
   const submit = async (e) => {
     e.preventDefault();
+    setSaving(true);
     const payload = { ...form, price: Number(form.price) };
     const url = editingId ? `/api/menu/${editingId}` : '/api/menu';
     const method = editingId ? 'PUT' : 'POST';
@@ -29,6 +32,7 @@ export default function AdminMenu() {
     if (res.status === 401) { router.push('/admin/login'); return; }
     if (res.ok) { setForm(EMPTY); setEditingId(null); load(); }
     else alert('Failed: ' + (await res.json()).error);
+    setSaving(false);
   };
 
   const edit = (item) => {
@@ -41,6 +45,7 @@ export default function AdminMenu() {
       isAvailable: item.isAvailable,
     });
     setEditingId(item._id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const remove = async (id) => {
@@ -58,61 +63,113 @@ export default function AdminMenu() {
     load();
   };
 
+  const logout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    router.push('/admin/login');
+  };
+
+  const inputClass = "w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-3 text-sm text-white placeholder-white/40 focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none";
+
   return (
-    <div className="min-h-screen bg-stone-100 p-6">
-      <header className="mb-8 flex justify-between items-center max-w-6xl mx-auto">
-        <h1 className="text-3xl font-serif font-bold text-stone-800">House Bird Cafe - Menu</h1>
-        <a href="/admin/dashboard" className="bg-stone-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-stone-900 transition">← Back to Dashboard</a>
+    <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-stone-950 to-emerald-900 relative overflow-x-hidden">
+      <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-emerald-500 rounded-full mix-blend-screen filter blur-3xl opacity-20 pointer-events-none"></div>
+      <div className="fixed bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-amber-500 rounded-full mix-blend-screen filter blur-3xl opacity-15 pointer-events-none"></div>
+
+      <header className="sticky top-0 z-30 backdrop-blur-xl bg-white/5 border-b border-white/10">
+        <div className="px-4 py-3 flex justify-between items-center gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <img src="/logo.png" alt="House Bird Cafe" className="w-10 h-10 rounded-full bg-white/90 p-0.5 flex-shrink-0 ring-2 ring-white/20 shadow-lg" />
+            <h1 className="text-base sm:text-xl font-serif font-bold text-white truncate">
+              <span className="hidden sm:inline">House Bird Cafe · Menu</span>
+              <span className="sm:hidden">Menu</span>
+            </h1>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <ThemeToggle className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20" />
+            <button onClick={logout} className="text-xs bg-red-500/80 hover:bg-red-500 text-white px-3 py-2 rounded-xl border border-white/20 font-medium">Logout</button>
+          </div>
+        </div>
+        <nav className="flex gap-2 px-4 pb-3 overflow-x-auto">
+          <a href="/admin/dashboard" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">🏠 Dashboard</a>
+          <a href="/admin/analytics" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">📊 Analytics</a>
+          <a href="/admin/history" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">📅 History</a>
+          <a href="/admin/feedback" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">⭐ Feedback</a>
+          <a href="/admin/tables" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">🔳 QR Codes</a>
+        </nav>
       </header>
 
-      <div className="max-w-6xl mx-auto">
-        <form onSubmit={submit} className="bg-white p-6 rounded-xl shadow-md mb-8 grid grid-cols-1 md:grid-cols-2 gap-4 border border-stone-200">
-          <h2 className="md:col-span-2 text-lg font-bold text-stone-700">{editingId ? 'Edit Item' : 'Add New Item'}</h2>
-          <input required placeholder="Name" value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="border border-stone-300 rounded-lg p-3 focus:ring-emerald-500 focus:border-emerald-500" />
-          <input required type="number" placeholder="Price (₹)" value={form.price}
-            onChange={(e) => setForm({ ...form, price: e.target.value })}
-            className="border border-stone-300 rounded-lg p-3 focus:ring-emerald-500 focus:border-emerald-500" />
-          <input placeholder="Category (e.g. Coffee)" value={form.category}
-            onChange={(e) => setForm({ ...form, category: e.target.value })}
-            className="border border-stone-300 rounded-lg p-3 focus:ring-emerald-500 focus:border-emerald-500" />
-          <input placeholder="Image URL (optional)" value={form.imageUrl}
-            onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-            className="border border-stone-300 rounded-lg p-3 focus:ring-emerald-500 focus:border-emerald-500" />
-          <textarea placeholder="Description" value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
-            className="border border-stone-300 rounded-lg p-3 md:col-span-2 focus:ring-emerald-500 focus:border-emerald-500" />
-          <div className="md:col-span-2 flex gap-3">
-            <button className="bg-emerald-700 text-white px-6 py-3 rounded-lg font-bold hover:bg-emerald-800 transition shadow-sm">
-              {editingId ? 'Update Item' : 'Add Item'}
+      <div className="relative z-10 max-w-5xl mx-auto p-4 md:p-6">
+        <form onSubmit={submit} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-5 md:p-6 shadow-2xl mb-6">
+          <h2 className="text-lg font-bold text-white mb-4">{editingId ? '✏️ Edit Item' : '➕ Add New Item'}</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input required placeholder="Name (e.g. Cappuccino)" value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputClass} />
+            <input required type="number" placeholder="Price (₹)" value={form.price}
+              onChange={(e) => setForm({ ...form, price: e.target.value })} className={inputClass} />
+            <input placeholder="Category (e.g. Coffee)" value={form.category}
+              onChange={(e) => setForm({ ...form, category: e.target.value })} className={inputClass} />
+            <input placeholder="Image URL (optional)" value={form.imageUrl}
+              onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} className={inputClass} />
+            <textarea placeholder="Description" value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              className={`${inputClass} md:col-span-2 resize-none`} rows={2} />
+          </div>
+          <div className="flex gap-3 mt-4">
+            <button disabled={saving} className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-emerald-500/30 transition disabled:opacity-50">
+              {saving ? 'Saving...' : (editingId ? 'Update Item' : 'Add Item')}
             </button>
             {editingId && (
               <button type="button" onClick={() => { setForm(EMPTY); setEditingId(null); }}
-                className="bg-stone-200 text-stone-700 px-6 py-3 rounded-lg font-bold hover:bg-stone-300 transition">Cancel</button>
+                className="bg-white/10 border border-white/20 text-white px-6 py-3 rounded-xl font-bold hover:bg-white/20 transition">
+                Cancel
+              </button>
             )}
           </div>
         </form>
 
-        <div className="bg-white rounded-xl shadow-md border border-stone-200 divide-y divide-stone-100">
+        <div className="mb-3 flex justify-between items-center">
+          <h2 className="text-lg font-bold text-white">Menu Items</h2>
+          <span className="bg-white/10 border border-white/20 text-white text-xs font-bold px-3 py-1 rounded-full">{items.length} items</span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {items.map((item) => (
-            <div key={item._id} className="p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div>
-                <p className="font-bold text-lg text-stone-800">{item.name} <span className="text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded ml-2">{item.category}</span></p>
-                <p className="text-sm text-stone-500 mt-1">{item.description}</p>
-                <p className="text-emerald-700 font-bold text-lg mt-1">₹{item.price}</p>
+            <div key={item._id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl hover:bg-white/15 transition">
+              <div className="flex justify-between items-start mb-2 gap-2">
+                <div className="min-w-0">
+                  <p className="font-bold text-white truncate">{item.name}</p>
+                  <span className="text-[10px] font-bold text-emerald-200 bg-emerald-400/20 border border-emerald-300/30 px-2 py-0.5 rounded-full inline-block mt-1">
+                    {item.category}
+                  </span>
+                </div>
+                <span className="font-extrabold text-emerald-300 text-lg flex-shrink-0">₹{item.price}</span>
               </div>
-              <div className="flex flex-wrap gap-2 text-sm w-full sm:w-auto">
+              {item.description && (
+                <p className="text-xs text-white/60 mb-3 line-clamp-2">{item.description}</p>
+              )}
+              <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-white/10">
                 <button onClick={() => toggle(item)}
-                  className={`px-4 py-2 rounded-lg font-medium transition ${item.isAvailable ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' : 'bg-red-100 text-red-700 hover:bg-red-200'}`}>
-                  {item.isAvailable ? 'Available' : 'Sold out'}
+                  className={`text-[11px] px-3 py-1.5 rounded-lg font-bold border transition ${
+                    item.isAvailable
+                      ? 'bg-emerald-400/20 text-emerald-200 border-emerald-300/30 hover:bg-emerald-400/30'
+                      : 'bg-red-400/20 text-red-200 border-red-300/30 hover:bg-red-400/30'
+                  }`}>
+                  {item.isAvailable ? '✓ Available' : '✕ Sold Out'}
                 </button>
-                <button onClick={() => edit(item)} className="px-4 py-2 rounded-lg font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 transition">Edit</button>
-                <button onClick={() => remove(item._id)} className="px-4 py-2 rounded-lg font-medium bg-red-50 text-red-700 hover:bg-red-100 transition">Delete</button>
+                <button onClick={() => edit(item)} className="text-[11px] px-3 py-1.5 rounded-lg font-bold bg-blue-400/20 text-blue-200 border border-blue-300/30 hover:bg-blue-400/30 transition">
+                  Edit
+                </button>
+                <button onClick={() => remove(item._id)} className="text-[11px] px-3 py-1.5 rounded-lg font-bold bg-red-400/20 text-red-200 border border-red-300/30 hover:bg-red-400/30 transition">
+                  Delete
+                </button>
               </div>
             </div>
           ))}
-          {items.length === 0 && <p className="p-10 text-center text-stone-500 font-medium">No items yet. Add one above.</p>}
+          {items.length === 0 && (
+            <div className="md:col-span-2 bg-white/5 border-2 border-dashed border-white/20 rounded-2xl p-12 text-center text-white/50">
+              No items yet. Add your first one above.
+            </div>
+          )}
         </div>
       </div>
     </div>

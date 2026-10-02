@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import ThemeToggle from '../../components/ThemeToggle';
 
 export default function AdminFeedback() {
   const router = useRouter();
@@ -24,69 +25,87 @@ export default function AdminFeedback() {
     fetchFeedback();
   }, [router]);
 
+  const logout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    router.push('/admin/login');
+  };
+
   const filteredFeedbacks = filter === 'ALL'
     ? feedbacks
     : feedbacks.filter(f => f.rating === Number(filter));
 
-  const starDisplay = (rating) => {
-    return '★'.repeat(rating) + '☆'.repeat(5 - rating);
-  };
+  const starDisplay = (rating) => '★'.repeat(rating) + '☆'.repeat(5 - rating);
 
-  const ratingColor = (r) => {
-    if (r >= 4) return 'text-emerald-600 bg-emerald-50';
-    if (r === 3) return 'text-amber-600 bg-amber-50';
-    return 'text-red-600 bg-red-50';
+  const ratingStyle = (r) => {
+    if (r >= 4) return 'bg-emerald-400/20 text-emerald-200 border-emerald-300/30';
+    if (r === 3) return 'bg-amber-400/20 text-amber-200 border-amber-300/30';
+    return 'bg-red-400/20 text-red-200 border-red-300/30';
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-stone-100 flex items-center justify-center">
-        <p className="text-stone-500 animate-pulse">Loading feedback...</p>
+      <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-stone-950 to-emerald-900 flex items-center justify-center">
+        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl px-8 py-6">
+          <p className="text-white/90 animate-pulse">Loading feedback...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-stone-100 p-6">
-      <header className="mb-8 max-w-6xl mx-auto flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-serif font-bold text-stone-800">Customer Feedback</h1>
-          <p className="text-stone-500 text-sm mt-1">House Bird Cafe</p>
+    <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-stone-950 to-emerald-900 relative overflow-x-hidden">
+      <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-emerald-500 rounded-full mix-blend-screen filter blur-3xl opacity-20 pointer-events-none"></div>
+      <div className="fixed bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-amber-500 rounded-full mix-blend-screen filter blur-3xl opacity-15 pointer-events-none"></div>
+
+      <header className="sticky top-0 z-30 backdrop-blur-xl bg-white/5 border-b border-white/10">
+        <div className="px-4 py-3 flex justify-between items-center gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <img src="/logo.png" alt="House Bird Cafe" className="w-10 h-10 rounded-full bg-white/90 p-0.5 flex-shrink-0 ring-2 ring-white/20 shadow-lg" />
+            <h1 className="text-base sm:text-xl font-serif font-bold text-white truncate">
+              <span className="hidden sm:inline">House Bird Cafe · Feedback</span>
+              <span className="sm:hidden">Feedback</span>
+            </h1>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <ThemeToggle className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20" />
+            <button onClick={logout} className="text-xs bg-red-500/80 hover:bg-red-500 text-white px-3 py-2 rounded-xl border border-white/20 font-medium">Logout</button>
+          </div>
         </div>
-        <a href="/admin/dashboard" className="bg-stone-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-stone-900 transition">← Back to Dashboard</a>
+        <nav className="flex gap-2 px-4 pb-3 overflow-x-auto">
+          <a href="/admin/dashboard" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">🏠 Dashboard</a>
+          <a href="/admin/analytics" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">📊 Analytics</a>
+          <a href="/admin/history" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">📅 History</a>
+          <a href="/admin/menu" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">📋 Menu</a>
+          <a href="/admin/tables" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">🔳 QR Codes</a>
+        </nav>
       </header>
 
-      <div className="max-w-6xl mx-auto">
-        {/* Top Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* Average Rating Card */}
-          <div className="bg-gradient-to-br from-amber-400 to-amber-600 p-6 rounded-2xl shadow-md text-white">
-            <p className="text-xs font-bold uppercase opacity-80">Average Rating</p>
+      <div className="relative z-10 max-w-6xl mx-auto p-4 md:p-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6">
+          <div className="bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl p-6 shadow-2xl shadow-amber-500/30">
+            <p className="text-xs font-bold text-white/90 uppercase tracking-wide">Average Rating</p>
             <div className="flex items-end gap-2 mt-2">
-              <p className="text-5xl font-bold">{avgRating}</p>
-              <p className="text-2xl mb-2">/ 5</p>
+              <p className="text-5xl font-bold text-white">{avgRating}</p>
+              <p className="text-2xl mb-2 text-white/80">/ 5</p>
             </div>
-            <div className="text-2xl mt-1">★★★★★</div>
-            <p className="text-xs mt-2 opacity-80">{totalReviews} total reviews</p>
+            <div className="text-2xl mt-1 text-white">★★★★★</div>
+            <p className="text-xs mt-2 text-white/80">{totalReviews} total reviews</p>
           </div>
 
-          {/* Rating Distribution */}
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-stone-200 md:col-span-2">
-            <p className="text-xs font-bold uppercase text-stone-500 mb-4">Rating Distribution</p>
-            <div className="space-y-2">
+          <div className="md:col-span-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-5 md:p-6 shadow-2xl">
+            <p className="text-xs font-bold uppercase text-white/60 mb-4">Rating Distribution</p>
+            <div className="space-y-2.5">
               {[5, 4, 3, 2, 1].map((star) => {
                 const count = distribution[star] || 0;
                 const pct = totalReviews > 0 ? (count / totalReviews) * 100 : 0;
+                const grad = star >= 4 ? 'from-emerald-400 to-teal-500' : star === 3 ? 'from-amber-400 to-orange-500' : 'from-red-400 to-rose-500';
                 return (
                   <div key={star} className="flex items-center gap-3">
-                    <span className="text-sm font-bold text-stone-700 w-16">{star} ★</span>
-                    <div className="flex-1 bg-stone-100 rounded-full h-3 overflow-hidden">
-                      <div
-                        className={`h-3 rounded-full ${star >= 4 ? 'bg-emerald-500' : star === 3 ? 'bg-amber-500' : 'bg-red-500'}`}
-                        style={{ width: `${pct}%` }}
-                      />
+                    <span className="text-sm font-bold text-white w-10">{star} ★</span>
+                    <div className="flex-1 bg-white/10 rounded-full h-2.5 overflow-hidden">
+                      <div className={`h-2.5 rounded-full bg-gradient-to-r ${grad} transition-all duration-500`} style={{ width: `${pct}%` }} />
                     </div>
-                    <span className="text-xs font-bold text-stone-500 w-12 text-right">{count} ({Math.round(pct)}%)</span>
+                    <span className="text-xs font-bold text-white/70 w-16 text-right">{count} ({Math.round(pct)}%)</span>
                   </div>
                 );
               })}
@@ -94,56 +113,52 @@ export default function AdminFeedback() {
           </div>
         </div>
 
-        {/* Filter Buttons */}
-        <div className="flex flex-wrap gap-2 mb-6">
-          <button onClick={() => setFilter('ALL')} className={`px-4 py-2 rounded-lg font-bold text-sm ${filter === 'ALL' ? 'bg-stone-800 text-white' : 'bg-white text-stone-600 border border-stone-200'}`}>
+        <div className="flex flex-wrap gap-2 mb-5">
+          <button onClick={() => setFilter('ALL')} className={`px-4 py-2 rounded-xl font-bold text-xs transition border ${filter === 'ALL' ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-transparent shadow-lg shadow-emerald-500/30' : 'bg-white/10 text-white/70 border-white/20 hover:bg-white/20'}`}>
             All ({feedbacks.length})
           </button>
           {[5, 4, 3, 2, 1].map((star) => (
-            <button
-              key={star}
-              onClick={() => setFilter(star)}
-              className={`px-4 py-2 rounded-lg font-bold text-sm ${filter === star ? 'bg-stone-800 text-white' : 'bg-white text-stone-600 border border-stone-200'}`}
-            >
+            <button key={star} onClick={() => setFilter(star)} className={`px-4 py-2 rounded-xl font-bold text-xs transition border ${filter === star ? 'bg-gradient-to-r from-amber-400 to-orange-500 text-white border-transparent shadow-lg shadow-amber-500/30' : 'bg-white/10 text-white/70 border-white/20 hover:bg-white/20'}`}>
               {star} ★ ({distribution[star] || 0})
             </button>
           ))}
         </div>
 
-        {/* Feedback List */}
         {filteredFeedbacks.length === 0 ? (
-          <div className="bg-white rounded-2xl p-12 text-center text-stone-400 border border-stone-200">
+          <div className="bg-white/5 border-2 border-dashed border-white/20 rounded-2xl p-12 text-center text-white/50">
             {feedbacks.length === 0 ? 'No feedback yet' : 'No feedback matches this filter'}
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 md:space-y-4">
             {filteredFeedbacks.map((f) => (
-              <div key={f._id} className="bg-white p-5 rounded-2xl shadow-sm border border-stone-200">
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <div className="flex items-center gap-3">
-                      <span className="font-bold text-stone-800">{f.customerName}</span>
-                      <span className="text-xs text-stone-400">Table {f.tableNumber}</span>
+              <div key={f._id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 md:p-5 shadow-2xl hover:bg-white/15 transition">
+                <div className="flex justify-between items-start mb-3 gap-3">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-bold text-white">{f.customerName}</span>
+                      <span className="text-[10px] text-white/50 bg-white/10 border border-white/20 px-2 py-0.5 rounded-full">Table {f.tableNumber}</span>
                     </div>
-                    <p className="text-xs text-stone-400 mt-0.5">
+                    <p className="text-[10px] text-white/50 mt-1">
                       {new Date(f.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })} · {new Date(f.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-sm font-bold ${ratingColor(f.rating)}`}>
+                  <span className={`px-3 py-1 rounded-full text-sm font-bold border flex-shrink-0 ${ratingStyle(f.rating)}`}>
                     {starDisplay(f.rating)}
                   </span>
                 </div>
 
                 {f.tags && f.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-3">
+                  <div className="flex flex-wrap gap-1.5 mb-3">
                     {f.tags.map((tag, i) => (
-                      <span key={i} className="text-xs bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full font-medium">{tag}</span>
+                      <span key={i} className="text-[10px] bg-emerald-400/20 border border-emerald-300/30 text-emerald-200 px-2.5 py-1 rounded-full font-medium">
+                        {tag}
+                      </span>
                     ))}
                   </div>
                 )}
 
                 {f.comment && (
-                  <p className="text-stone-700 text-sm bg-stone-50 p-4 rounded-xl border-l-4 border-amber-400 italic">
+                  <p className="text-white/85 text-sm bg-white/5 border-l-4 border-amber-400 rounded-r-xl p-3 italic">
                     "{f.comment}"
                   </p>
                 )}
