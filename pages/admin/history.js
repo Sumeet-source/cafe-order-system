@@ -63,7 +63,7 @@ export default function OrderHistory() {
     CANCELLED: 'bg-red-400/20 text-red-200 border-red-300/30',
   }[s] || 'bg-white/10 text-white/70 border-white/20');
 
-  const inputClass = "w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-2.5 text-sm text-white placeholder-white/40 focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none";
+  const inputClass = "w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-2.5 text-sm text-white placeholder-white/40 focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none min-w-0";
   const labelClass = "block text-[10px] font-bold text-white/60 uppercase tracking-wide mb-1";
 
   return (
@@ -95,50 +95,92 @@ export default function OrderHistory() {
       </header>
 
       <div className="relative z-10 max-w-6xl mx-auto p-4 md:p-6">
+        {/* ============ FILTERS ============ */}
         <form onSubmit={applyFilters} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 md:p-5 shadow-2xl mb-5">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            <div>
-              <label className={labelClass}>From</label>
-              <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className={inputClass} />
+          {/* Row 1: Dates + Apply button */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+            <div className="min-w-0">
+              <label className={labelClass}>From Date</label>
+              <input
+                type="date"
+                value={from}
+                onChange={(e) => setFrom(e.target.value)}
+                className={inputClass}
+              />
             </div>
-            <div>
-              <label className={labelClass}>To</label>
-              <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className={inputClass} />
+            <div className="min-w-0">
+              <label className={labelClass}>To Date</label>
+              <input
+                type="date"
+                value={to}
+                onChange={(e) => setTo(e.target.value)}
+                className={inputClass}
+              />
             </div>
-            <div>
+            <div className="flex items-end">
+              <button
+                type="submit"
+                className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white rounded-xl py-2.5 font-bold shadow-lg shadow-emerald-500/30 text-sm transition"
+              >
+                Apply Filters
+              </button>
+            </div>
+          </div>
+
+          {/* Row 2: Status + Table */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+            <div className="min-w-0">
               <label className={labelClass}>Status</label>
-              <select value={status} onChange={(e) => setStatus(e.target.value)} className={inputClass}>
-                <option value="ALL" className="text-black">All</option>
-                <option value="PLACED" className="text-black">Placed</option>
-                <option value="PREPARING" className="text-black">Preparing</option>
-                <option value="READY" className="text-black">Ready</option>
-                <option value="DELIVERED" className="text-black">Delivered</option>
-                <option value="CANCELLED" className="text-black">Cancelled</option>
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                className={inputClass}
+              >
+                <option value="ALL">All Statuses</option>
+                <option value="PLACED">Placed</option>
+                <option value="PREPARING">Preparing</option>
+                <option value="READY">Ready</option>
+                <option value="DELIVERED">Delivered</option>
+                <option value="CANCELLED">Cancelled</option>
               </select>
             </div>
-            <div>
+            <div className="min-w-0">
               <label className={labelClass}>Table</label>
-              <select value={table} onChange={(e) => setTable(e.target.value)} className={inputClass}>
-                <option value="ALL" className="text-black">All Tables</option>
+              <select
+                value={table}
+                onChange={(e) => setTable(e.target.value)}
+                className={inputClass}
+              >
+                <option value="ALL">All Tables</option>
                 {[...Array(20)].map((_, i) => (
-                  <option key={i + 1} value={i + 1} className="text-black">Table {i + 1}</option>
+                  <option key={i + 1} value={i + 1}>Table {i + 1}</option>
                 ))}
               </select>
             </div>
-            <button type="submit" className="col-span-2 md:col-span-1 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white rounded-xl py-2.5 font-bold shadow-lg shadow-emerald-500/30 text-sm transition">
-              Apply
-            </button>
           </div>
-          <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-white/10">
+
+          {/* Row 3: Quick ranges */}
+          <div className="flex flex-wrap gap-2 pt-3 border-t border-white/10">
             <span className="text-[10px] font-bold text-white/50 py-1 uppercase">Quick:</span>
-            {[{ l: 'Today', d: 0 }, { l: 'Yesterday', d: 1 }, { l: '7 Days', d: 7 }, { l: '30 Days', d: 30 }].map((q) => (
-              <button key={q.l} type="button" onClick={() => quickRange(q.d)} className="text-[11px] bg-white/10 hover:bg-white/20 border border-white/20 px-3 py-1 rounded-full text-white font-medium transition">
+            {[
+              { l: 'Today', d: 0 },
+              { l: 'Yesterday', d: 1 },
+              { l: 'Last 7 Days', d: 7 },
+              { l: 'Last 30 Days', d: 30 },
+            ].map((q) => (
+              <button
+                key={q.l}
+                type="button"
+                onClick={() => quickRange(q.d)}
+                className="text-[11px] bg-white/10 hover:bg-white/20 border border-white/20 px-3 py-1 rounded-full text-white font-medium transition"
+              >
                 {q.l}
               </button>
             ))}
           </div>
         </form>
 
+        {/* ============ SUMMARY CARDS ============ */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
           <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl">
             <p className="text-[10px] font-bold text-white/60 uppercase">Orders</p>
@@ -148,18 +190,27 @@ export default function OrderHistory() {
             <p className="text-[10px] font-bold text-white/90 uppercase">Revenue</p>
             <p className="text-2xl md:text-3xl font-bold text-white mt-1">₹{totalRevenue}</p>
           </div>
-          <button onClick={() => downloadCSV('csv')} disabled={downloading || orders.length === 0} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl hover:bg-white/15 disabled:opacity-50 text-left transition">
+          <button
+            onClick={() => downloadCSV('csv')}
+            disabled={downloading || orders.length === 0}
+            className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl hover:bg-white/15 disabled:opacity-50 text-left transition"
+          >
             <p className="text-2xl">📥</p>
             <p className="text-xs font-bold text-white mt-1">{downloading ? 'Downloading...' : 'Full Orders'}</p>
             <p className="text-[10px] text-white/50">CSV</p>
           </button>
-          <button onClick={() => downloadCSV('summary')} disabled={downloading || orders.length === 0} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl hover:bg-white/15 disabled:opacity-50 text-left transition">
+          <button
+            onClick={() => downloadCSV('summary')}
+            disabled={downloading || orders.length === 0}
+            className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl hover:bg-white/15 disabled:opacity-50 text-left transition"
+          >
             <p className="text-2xl">📊</p>
             <p className="text-xs font-bold text-white mt-1">{downloading ? 'Downloading...' : 'Summary'}</p>
             <p className="text-[10px] text-white/50">CSV</p>
           </button>
         </div>
 
+        {/* ============ ORDERS LIST ============ */}
         {loading ? (
           <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-12 text-center">
             <p className="text-white/80 animate-pulse">Loading...</p>
