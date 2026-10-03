@@ -364,7 +364,7 @@ export default function OrderPage() {
             <div className="p-6 border-t border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950">
               <input
                 type="text"
-                placeholder="Your name (for the waiter)"
+                placeholder="Enter your name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full border border-stone-300 dark:border-stone-700 rounded-lg p-3 mb-4 bg-white dark:bg-stone-800 focus:ring-emerald-500 focus:border-emerald-500 text-stone-800 dark:text-stone-100 placeholder-stone-400"
