@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import ThemeToggle from '../../components/ThemeToggle';
+import { Download, BarChart3, Filter, LogOut } from 'lucide-react';
 import AdminNav from '../../components/AdminNav';
 import LogoutButton from '../../components/LogoutButton';
+import ThemeToggle from '../../components/ThemeToggle';
 
 export default function OrderHistory() {
   const router = useRouter();
@@ -70,7 +71,7 @@ export default function OrderHistory() {
       <header className="sticky top-0 z-30 backdrop-blur-xl bg-white/5 border-b border-white/10">
         <div className="px-4 py-3 flex justify-between items-center gap-2">
           <div className="flex items-center gap-2 min-w-0">
-            <img src="/logo.png" alt="House Bird Cafe" className="w-10 h-10 rounded-full bg-white/90 p-0.5 flex-shrink-0 ring-2 ring-white/20 shadow-lg" />
+            <img src="/logo.png" alt="House Bird Cafe" className="w-10 h-10 rounded-full bg-white/90 p-0.5 flex-shrink-0 ring-2 ring-white/20" />
             <h1 className="text-base sm:text-xl font-serif font-bold text-white truncate">
               <span className="hidden sm:inline">House Bird Cafe · History</span>
               <span className="sm:hidden">History</span>
@@ -85,7 +86,8 @@ export default function OrderHistory() {
       </header>
 
       <div className="relative z-10 max-w-6xl mx-auto p-4 md:p-6">
-        <form onSubmit={applyFilters} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 md:p-5 shadow-2xl mb-5">
+        {/* Filters */}
+        <form onSubmit={applyFilters} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 md:p-5 mb-5">
           <div className="space-y-3 md:space-y-0 md:grid md:grid-cols-3 md:gap-3 md:mb-3">
             <div className="w-full overflow-hidden">
               <label className={labelClass}>From Date</label>
@@ -96,7 +98,8 @@ export default function OrderHistory() {
               <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className={inputClass} />
             </div>
             <div className="w-full md:flex md:items-end">
-              <button type="submit" className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white rounded-xl py-2.5 font-bold shadow-lg shadow-emerald-500/30 text-sm transition">
+              <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-2.5 font-bold text-sm transition-colors flex items-center justify-center gap-2">
+                <Filter size={16} strokeWidth={2.5} />
                 Apply Filters
               </button>
             </div>
@@ -128,34 +131,44 @@ export default function OrderHistory() {
           <div className="flex flex-wrap gap-2 pt-3 mt-3 border-t border-white/10">
             <span className="text-[10px] font-bold text-white/50 py-1 uppercase">Quick:</span>
             {[{ l: 'Today', d: 0 }, { l: 'Yesterday', d: 1 }, { l: 'Last 7 Days', d: 7 }, { l: 'Last 30 Days', d: 30 }].map((q) => (
-              <button key={q.l} type="button" onClick={() => quickRange(q.d)} className="text-[11px] bg-white/10 hover:bg-white/20 border border-white/20 px-3 py-1 rounded-full text-white font-medium transition">
+              <button key={q.l} type="button" onClick={() => quickRange(q.d)} className="text-[11px] bg-white/10 hover:bg-white/20 border border-white/20 px-3 py-1 rounded-full text-white font-medium transition-colors">
                 {q.l}
               </button>
             ))}
           </div>
         </form>
 
+        {/* Summary cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl">
+          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
             <p className="text-[10px] font-bold text-white/60 uppercase">Orders</p>
             <p className="text-2xl md:text-3xl font-bold text-white mt-1">{orders.length}</p>
           </div>
-          <div className="bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl p-4 shadow-2xl shadow-emerald-500/30">
+          <div className="bg-emerald-600 rounded-2xl p-4">
             <p className="text-[10px] font-bold text-white/90 uppercase">Revenue</p>
             <p className="text-2xl md:text-3xl font-bold text-white mt-1">₹{totalRevenue}</p>
           </div>
-          <button onClick={() => downloadCSV('csv')} disabled={downloading || orders.length === 0} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl hover:bg-white/15 disabled:opacity-50 text-left transition">
-            <p className="text-2xl">📥</p>
-            <p className="text-xs font-bold text-white mt-1">{downloading ? 'Downloading...' : 'Full Orders'}</p>
+          <button
+            onClick={() => downloadCSV('csv')}
+            disabled={downloading || orders.length === 0}
+            className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 hover:bg-white/15 disabled:opacity-50 text-left transition-colors flex flex-col items-start"
+          >
+            <Download size={22} strokeWidth={2.2} className="text-emerald-400 mb-2" />
+            <p className="text-xs font-bold text-white">{downloading ? 'Downloading...' : 'Full Orders'}</p>
             <p className="text-[10px] text-white/50">CSV</p>
           </button>
-          <button onClick={() => downloadCSV('summary')} disabled={downloading || orders.length === 0} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl hover:bg-white/15 disabled:opacity-50 text-left transition">
-            <p className="text-2xl">📊</p>
-            <p className="text-xs font-bold text-white mt-1">{downloading ? 'Downloading...' : 'Summary'}</p>
+          <button
+            onClick={() => downloadCSV('summary')}
+            disabled={downloading || orders.length === 0}
+            className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 hover:bg-white/15 disabled:opacity-50 text-left transition-colors flex flex-col items-start"
+          >
+            <BarChart3 size={22} strokeWidth={2.2} className="text-emerald-400 mb-2" />
+            <p className="text-xs font-bold text-white">{downloading ? 'Downloading...' : 'Summary'}</p>
             <p className="text-[10px] text-white/50">CSV</p>
           </button>
         </div>
 
+        {/* Orders list */}
         {loading ? (
           <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-12 text-center">
             <p className="text-white/80 animate-pulse">Loading...</p>
@@ -166,7 +179,7 @@ export default function OrderHistory() {
           </div>
         ) : (
           <>
-            <div className="hidden md:block bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden">
+            <div className="hidden md:block bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden">
               <table className="w-full text-sm">
                 <thead className="bg-white/5 border-b border-white/10">
                   <tr className="text-left text-white/70 text-xs uppercase tracking-wide">
@@ -180,7 +193,7 @@ export default function OrderHistory() {
                 </thead>
                 <tbody className="divide-y divide-white/5">
                   {orders.map((o) => (
-                    <tr key={o._id} className="text-white hover:bg-white/5 transition">
+                    <tr key={o._id} className="text-white hover:bg-white/5 transition-colors">
                       <td className="p-3 whitespace-nowrap">
                         <div className="text-sm">{new Date(o.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</div>
                         <div className="text-[10px] text-white/50">{new Date(o.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
@@ -202,7 +215,7 @@ export default function OrderHistory() {
 
             <div className="md:hidden space-y-3">
               {orders.map((o) => (
-                <div key={o._id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden">
+                <div key={o._id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden">
                   <div className="flex justify-between items-center p-3 border-b border-white/10">
                     <span className="font-extrabold text-white">Table {o.tableNumber}</span>
                     <span className={`text-[10px] font-bold px-2 py-1 rounded-full border ${statusStyle(o.orderStatus)}`}>{o.orderStatus}</span>

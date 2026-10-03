@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
+import { ChefHat, PackageCheck, Truck, LogOut } from 'lucide-react';
 import ThemeToggle from '../../components/ThemeToggle';
 import AdminNav from '../../components/AdminNav';
 import LogoutButton from '../../components/LogoutButton';
 
 const STATUS_FLOW = {
-  PLACED:    { next: 'PREPARING', label: 'Start Preparing', cls: 'admin-btn-amber' },
-  PREPARING: { next: 'READY',     label: 'Mark Ready',       cls: 'admin-btn-blue' },
-  READY:     { next: 'DELIVERED', label: 'Mark Delivered',   cls: 'admin-btn-emerald' },
+  PLACED:    { next: 'PREPARING', label: 'Start Preparing', Icon: ChefHat,     cls: 'bg-emerald-600 hover:bg-emerald-700 text-white' },
+  PREPARING: { next: 'READY',     label: 'Mark Ready',       Icon: PackageCheck, cls: 'bg-emerald-600 hover:bg-emerald-700 text-white' },
+  READY:     { next: 'DELIVERED', label: 'Mark Delivered',   Icon: Truck,       cls: 'bg-emerald-600 hover:bg-emerald-700 text-white' },
 };
+
 const STATUS_LABEL = {
   PLACED: '🆕 New',
   PREPARING: '👨‍🍳 Preparing',
@@ -16,9 +18,9 @@ const STATUS_LABEL = {
 };
 
 const STATUS_ACCENT = {
-  PLACED: 'from-amber-400 to-orange-500',
-  PREPARING: 'from-blue-400 to-indigo-500',
-  READY: 'from-emerald-400 to-teal-500',
+  PLACED: 'bg-emerald-500',
+  PREPARING: 'bg-emerald-600',
+  READY: 'bg-emerald-700',
 };
 
 export default function Dashboard() {
@@ -110,7 +112,7 @@ export default function Dashboard() {
       <header className="sticky top-0 z-30 backdrop-blur-xl bg-white/5 border-b border-white/10">
         <div className="px-4 py-3 flex justify-between items-center gap-2">
           <div className="flex items-center gap-2 min-w-0">
-            <img src="/logo.png" alt="House Bird Cafe" className="w-10 h-10 rounded-full bg-white/90 p-0.5 flex-shrink-0 ring-2 ring-white/20 shadow-lg" />
+            <img src="/logo.png" alt="House Bird Cafe" className="w-10 h-10 rounded-full bg-white/90 p-0.5 flex-shrink-0 ring-2 ring-white/20" />
             <h1 className="text-base sm:text-xl font-serif font-bold tracking-wide text-white truncate">
               <span className="hidden sm:inline">House Bird Cafe · Kitchen</span>
               <span className="sm:hidden">House Bird Cafe</span>
@@ -126,14 +128,14 @@ export default function Dashboard() {
 
       {waiterCalls.length > 0 && (
         <div className="relative z-20 p-3 sm:p-4">
-          <div className="max-w-7xl mx-auto bg-red-500/15 backdrop-blur-xl border-2 border-red-400/40 rounded-2xl p-3 sm:p-4 shadow-2xl shadow-red-500/20">
+          <div className="max-w-7xl mx-auto bg-red-500/15 backdrop-blur-xl border-2 border-red-400/40 rounded-2xl p-3 sm:p-4">
             <h2 className="font-bold text-red-100 text-base sm:text-lg mb-2 sm:mb-3 flex items-center gap-2">
               🔔 Waiter Calls
-              <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full shadow-lg">{waiterCalls.length}</span>
+              <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{waiterCalls.length}</span>
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
               {waiterCalls.map((call) => (
-                <div key={call._id} className="bg-white/10 backdrop-blur-md border border-red-300/40 rounded-xl p-3 flex items-center gap-3 shadow-lg animate-pulse">
+                <div key={call._id} className="bg-white/10 backdrop-blur-md border border-red-300/40 rounded-xl p-3 flex items-center gap-3 animate-pulse">
                   <div className="text-3xl flex-shrink-0">
                     {call.callType === 'WATER' ? '💧' : call.callType === 'BILL' ? '🧾' : '🛎️'}
                   </div>
@@ -146,12 +148,9 @@ export default function Dashboard() {
                       {new Date(call.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
-                  <button
-  onClick={() => resolveWaiterCall(call._id)}
-  className="admin-btn admin-btn-red flex-shrink-0 px-3 py-2 rounded-lg font-bold text-xs border border-white/20"
->
-  Done
-</button>
+                  <button onClick={() => resolveWaiterCall(call._id)} className="flex-shrink-0 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg font-bold text-xs">
+                    Done
+                  </button>
                 </div>
               ))}
             </div>
@@ -161,11 +160,11 @@ export default function Dashboard() {
 
       {!loading && (
         <div className="md:hidden sticky top-[112px] z-20 px-3 pt-3">
-          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-1 flex shadow-xl">
+          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-1 flex">
             {['PLACED', 'PREPARING', 'READY'].map((status) => {
               const isActive = mobileTab === status;
               return (
-                <button key={status} onClick={() => setMobileTab(status)} className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition relative overflow-hidden ${isActive ? `bg-gradient-to-r ${STATUS_ACCENT[status]} text-white shadow-lg` : 'text-white/60 hover:text-white'}`}>
+                <button key={status} onClick={() => setMobileTab(status)} className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition ${isActive ? 'bg-emerald-600 text-white' : 'text-white/60 hover:text-white'}`}>
                   <div className="flex items-center justify-center gap-1.5">
                     <span>{STATUS_LABEL[status]}</span>
                     {grouped[status].length > 0 && (
@@ -181,13 +180,11 @@ export default function Dashboard() {
 
       {loading ? (
         <div className="flex items-center justify-center h-96 relative z-10">
-          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl px-8 py-6 shadow-2xl">
-            <p className="text-lg text-white/90 animate-pulse">Loading orders...</p>
-          </div>
+          <p className="text-lg text-white/90 animate-pulse">Loading orders...</p>
         </div>
       ) : totalOrders === 0 ? (
         <div className="flex flex-col items-center justify-center h-96 p-6 text-center relative z-10">
-          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl px-8 py-10 shadow-2xl max-w-sm">
+          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl px-8 py-10 max-w-sm">
             <div className="text-6xl mb-4">☕</div>
             <p className="text-xl font-serif font-bold text-white">No active orders</p>
             <p className="text-sm text-white/60 mt-2">Orders will appear here in real-time</p>
@@ -201,51 +198,56 @@ export default function Dashboard() {
                 <h2 className="font-bold text-lg text-white uppercase tracking-wider">
                   {status === 'PLACED' ? '🆕 New Orders' : status === 'PREPARING' ? '👨‍🍳 Preparing' : '✅ Ready to Serve'}
                 </h2>
-                <span className="bg-white/10 backdrop-blur-md border border-white/20 text-white font-bold px-3 py-1 rounded-full text-sm shadow-lg">{grouped[status].length}</span>
+                <span className="bg-white/10 backdrop-blur-md border border-white/20 text-white font-bold px-3 py-1 rounded-full text-sm">{grouped[status].length}</span>
               </div>
               <div className="space-y-3 md:space-y-4 flex-1">
-                {grouped[status].map((order) => (
-                  <div key={order._id} className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden group hover:bg-white/15 transition">
-                    <div className={`h-1 bg-gradient-to-r ${STATUS_ACCENT[order.orderStatus]}`}></div>
-                    <div className="p-3 md:p-4 flex justify-between items-center border-b border-white/10">
-                      <span className="font-extrabold text-lg md:text-xl text-white">Table {order.tableNumber}</span>
-                      <span className="text-xs md:text-sm font-medium text-white/80 bg-white/10 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10">
-                        {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                    </div>
-                    <div className="p-3 md:p-4">
-                      <p className="text-xs md:text-sm font-medium text-white/70 mb-2 md:mb-3 flex items-center gap-2">
-                        <span className="text-base md:text-lg">👤</span>
-                        <span className="truncate">{order.customerName}</span>
-                      </p>
-                      <ul className="space-y-1.5 md:space-y-2 mb-3 md:mb-4">
-                        {order.items.map((it, i) => (
-                          <li key={i} className="flex justify-between text-white text-sm md:text-base font-medium gap-2">
-                            <span className="flex items-center gap-1.5 md:gap-2 min-w-0">
-                              <span className="bg-emerald-400/30 text-emerald-100 text-[10px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 rounded border border-emerald-300/30 flex-shrink-0">{it.quantity}x</span>
-                              <span className="truncate">{it.name}</span>
-                            </span>
-                            <span className="text-white/70 flex-shrink-0">₹{it.price * it.quantity}</span>
-                          </li>
-                        ))}
-                      </ul>
-                      <div className="flex justify-between items-center border-t border-white/10 pt-2 md:pt-3">
-                        <span className="font-bold text-white/70 text-sm md:text-base">Total</span>
-                        <span className="font-extrabold text-xl md:text-2xl text-white drop-shadow-lg">₹{order.totalAmount}</span>
+                {grouped[status].map((order) => {
+                  const flow = STATUS_FLOW[order.orderStatus];
+                  const Icon = flow?.Icon;
+                  return (
+                    <div key={order._id} className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden group hover:bg-white/15 transition">
+                      <div className={`h-1 ${STATUS_ACCENT[order.orderStatus]}`}></div>
+                      <div className="p-3 md:p-4 flex justify-between items-center border-b border-white/10">
+                        <span className="font-extrabold text-lg md:text-xl text-white">Table {order.tableNumber}</span>
+                        <span className="text-xs md:text-sm font-medium text-white/80 bg-white/10 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10">
+                          {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
                       </div>
-                    </div>
-                    {STATUS_FLOW[order.orderStatus] && (
                       <div className="p-3 md:p-4">
-                        <button
-  onClick={() => updateStatus(order._id, STATUS_FLOW[order.orderStatus].next)}
-  className={`admin-btn ${STATUS_FLOW[order.orderStatus].cls} w-full py-3 md:py-3.5 rounded-xl font-bold text-base md:text-lg transform active:scale-95`}
->
-  {STATUS_FLOW[order.orderStatus].label}
-</button>
+                        <p className="text-xs md:text-sm font-medium text-white/70 mb-2 md:mb-3 flex items-center gap-2">
+                          <span className="text-base md:text-lg">👤</span>
+                          <span className="truncate">{order.customerName}</span>
+                        </p>
+                        <ul className="space-y-1.5 md:space-y-2 mb-3 md:mb-4">
+                          {order.items.map((it, i) => (
+                            <li key={i} className="flex justify-between text-white text-sm md:text-base font-medium gap-2">
+                              <span className="flex items-center gap-1.5 md:gap-2 min-w-0">
+                                <span className="bg-emerald-400/30 text-emerald-100 text-[10px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 rounded border border-emerald-300/30 flex-shrink-0">{it.quantity}x</span>
+                                <span className="truncate">{it.name}</span>
+                              </span>
+                              <span className="text-white/70 flex-shrink-0">₹{it.price * it.quantity}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        <div className="flex justify-between items-center border-t border-white/10 pt-2 md:pt-3">
+                          <span className="font-bold text-white/70 text-sm md:text-base">Total</span>
+                          <span className="font-extrabold text-xl md:text-2xl text-white">₹{order.totalAmount}</span>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                ))}
+                      {flow && (
+                        <div className="p-3 md:p-4">
+                          <button
+                            onClick={() => updateStatus(order._id, flow.next)}
+                            className={`${flow.cls} w-full py-3 md:py-3.5 rounded-xl font-bold text-base md:text-lg transition-colors duration-150 transform active:scale-95 flex items-center justify-center gap-2`}
+                          >
+                            <Icon size={18} strokeWidth={2.5} />
+                            {flow.label}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
                 {grouped[status].length === 0 && (
                   <div className="bg-white/5 backdrop-blur-md border-2 border-dashed border-white/20 rounded-2xl p-6 md:p-8 text-center text-white/40 text-sm">
                     No orders in {STATUS_LABEL[status]}
