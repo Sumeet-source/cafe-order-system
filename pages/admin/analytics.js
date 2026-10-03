@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import ThemeToggle from '../../components/ThemeToggle';
 import AdminNav from '../../components/AdminNav';
+import LogoutButton from '../../components/LogoutButton';
 
 export default function Analytics() {
   const router = useRouter();
@@ -18,11 +19,6 @@ export default function Analytics() {
     };
     fetchStats();
   }, [router]);
-
-  const logout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
-    router.push('/admin/login');
-  };
 
   if (loading) {
     return (
@@ -57,7 +53,7 @@ export default function Analytics() {
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             <ThemeToggle />
-            <button onClick={logout} className="text-xs bg-red-500/80 hover:bg-red-500 backdrop-blur-md text-white px-3 py-2 rounded-xl border border-white/20 shadow-lg shadow-red-500/30 transition font-medium">Logout</button>
+            <LogoutButton />
           </div>
         </div>
         <AdminNav />

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import ThemeToggle from '../../components/ThemeToggle';
 import AdminNav from '../../components/AdminNav';
+import LogoutButton from '../../components/LogoutButton';
 
 const STATUS_FLOW = {
   PLACED:    { next: 'PREPARING', label: 'Start Preparing', glow: 'shadow-amber-500/50',   gradient: 'from-amber-400 to-orange-500',   hover: 'hover:from-amber-300 hover:to-orange-400' },
@@ -94,11 +95,6 @@ export default function Dashboard() {
       body: JSON.stringify({ id }),
     });
     fetchOrders();
-  };
-
-  const logout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
-    router.push('/admin/login');
   };
 
   const grouped = { PLACED: [], PREPARING: [], READY: [] };

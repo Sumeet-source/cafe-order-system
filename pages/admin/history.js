@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import ThemeToggle from '../../components/ThemeToggle';
 import AdminNav from '../../components/AdminNav';
+import LogoutButton from '../../components/LogoutButton';
 
 export default function OrderHistory() {
   const router = useRouter();
@@ -50,11 +51,6 @@ export default function OrderHistory() {
     setTimeout(() => setDownloading(false), 1500);
   };
 
-  const logout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
-    router.push('/admin/login');
-  };
-
   const statusStyle = (s) => ({
     PLACED: 'bg-amber-400/20 text-amber-200 border-amber-300/30',
     PREPARING: 'bg-blue-400/20 text-blue-200 border-blue-300/30',
@@ -82,7 +78,7 @@ export default function OrderHistory() {
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             <ThemeToggle />
-            <button onClick={logout} className="text-xs bg-red-500/80 hover:bg-red-500 text-white px-3 py-2 rounded-xl border border-white/20 font-medium">Logout</button>
+            <LogoutButton />
           </div>
         </div>
         <AdminNav />

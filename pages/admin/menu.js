@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import ThemeToggle from '../../components/ThemeToggle';
 import AdminNav from '../../components/AdminNav';
+import LogoutButton from '../../components/LogoutButton';
 
 const EMPTY = { name: '', description: '', price: '', category: 'General', imageUrl: '', isAvailable: true };
 
@@ -49,11 +50,6 @@ export default function AdminMenu() {
     load();
   };
 
-  const logout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
-    router.push('/admin/login');
-  };
-
   const inputClass = "w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-3 text-sm text-white placeholder-white/40 focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none";
 
   return (
@@ -72,7 +68,7 @@ export default function AdminMenu() {
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             <ThemeToggle />
-            <button onClick={logout} className="text-xs bg-red-500/80 hover:bg-red-500 text-white px-3 py-2 rounded-xl border border-white/20 font-medium">Logout</button>
+            <LogoutButton />
           </div>
         </div>
         <AdminNav />

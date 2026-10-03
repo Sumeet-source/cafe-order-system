@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import QRCode from 'qrcode';
 import ThemeToggle from '../../components/ThemeToggle';
 import AdminNav from '../../components/AdminNav';
+import LogoutButton from '../../components/LogoutButton';
 
 export default function Tables() {
   const router = useRouter();
@@ -23,11 +24,6 @@ export default function Tables() {
     generate();
   }, [tableCount, baseUrl]);
 
-  const logout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
-    router.push('/admin/login');
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-stone-950 to-emerald-900 relative overflow-x-hidden">
       <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-emerald-500 rounded-full mix-blend-screen filter blur-3xl opacity-20 pointer-events-none"></div>
@@ -44,7 +40,7 @@ export default function Tables() {
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             <ThemeToggle />
-            <button onClick={logout} className="text-xs bg-red-500/80 hover:bg-red-500 text-white px-3 py-2 rounded-xl border border-white/20 font-medium">Logout</button>
+            <LogoutButton />
           </div>
         </div>
         <AdminNav />

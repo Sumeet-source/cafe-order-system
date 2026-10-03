@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import ThemeToggle from '../../components/ThemeToggle';
 import AdminNav from '../../components/AdminNav';
+import LogoutButton from '../../components/LogoutButton';
 
 export default function AdminFeedback() {
   const router = useRouter();
@@ -25,11 +26,6 @@ export default function AdminFeedback() {
     };
     fetchFeedback();
   }, [router]);
-
-  const logout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
-    router.push('/admin/login');
-  };
 
   const filteredFeedbacks = filter === 'ALL' ? feedbacks : feedbacks.filter(f => f.rating === Number(filter));
   const starDisplay = (rating) => '★'.repeat(rating) + '☆'.repeat(5 - rating);
@@ -65,7 +61,7 @@ export default function AdminFeedback() {
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             <ThemeToggle />
-            <button onClick={logout} className="text-xs bg-red-500/80 hover:bg-red-500 text-white px-3 py-2 rounded-xl border border-white/20 font-medium">Logout</button>
+            <LogoutButton />
           </div>
         </div>
         <AdminNav />
