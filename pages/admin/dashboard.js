@@ -1,27 +1,32 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
-import AdminLayout from '../../components/AdminLayout';
+import ThemeToggle from '../../components/ThemeToggle';
 
-const STATUS_STYLE = {
-  PLACED:    { bg: 'bg-amber-500/15',   text: 'text-amber-300',   border: 'border-amber-500/30',   label: 'Placed' },
-  PREPARING: { bg: 'bg-blue-500/15',    text: 'text-blue-300',    border: 'border-blue-500/30',    label: 'Preparing' },
-  READY:     { bg: 'bg-emerald-500/15', text: 'text-emerald-300', border: 'border-emerald-500/30', label: 'Ready' },
-  DELIVERED: { bg: 'bg-[#1e2535]',      text: 'text-[#8891a8]',   border: 'border-[#1e2535]',      label: 'Delivered' },
-  CANCELLED: { bg: 'bg-red-500/15',     text: 'text-red-300',     border: 'border-red-500/30',     label: 'Cancelled' },
+const STATUS_FLOW = {
+  PLACED:    { next: 'PREPARING', label: 'Start Preparing', glow: 'shadow-amber-500/50',   gradient: 'from-amber-400 to-orange-500',   hover: 'hover:from-amber-300 hover:to-orange-400' },
+  PREPARING: { next: 'READY',     label: 'Mark Ready',       glow: 'shadow-blue-500/50',    gradient: 'from-blue-400 to-indigo-500',    hover: 'hover:from-blue-300 hover:to-indigo-400' },
+  READY:     { next: 'DELIVERED', label: 'Mark Delivered',   glow: 'shadow-emerald-500/50', gradient: 'from-emerald-400 to-teal-500',   hover: 'hover:from-emerald-300 hover:to-teal-400' },
 };
 
-const NEXT_STATUS = {
-  PLACED: { next: 'PREPARING', label: 'Start Preparing' },
-  PREPARING: { next: 'READY', label: 'Mark Ready' },
-  READY: { next: 'DELIVERED', label: 'Mark Delivered' },
+const STATUS_LABEL = {
+  PLACED: '🆕 New',
+  PREPARING: '👨‍🍳 Preparing',
+  READY: '✅ Ready',
+};
+
+const STATUS_ACCENT = {
+  PLACED: 'from-amber-400 to-orange-500',
+  PREPARING: 'from-blue-400 to-indigo-500',
+  READY: 'from-emerald-400 to-teal-500',
 };
 
 export default function Dashboard() {
   const router = useRouter();
-  const [stats, setStats] = useState(null);
+  const [orders, setOrders] = useState([]);
   const [waiterCalls, setWaiterCalls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [mobileTab, setMobileTab] = useState('PLACED');
+  const lastCount = useRef(0);
   const lastWaiterCount = useRef(0);
   const audioCtx = useRef(null);
 
@@ -39,25 +44,36 @@ export default function Dashboard() {
     } catch {}
   };
 
-  const fetchAll = async () => {
-    const res = await fetch('/api/orders/stats');
+  const fetchOrders = async () => {
+    const res = await fetch('/api/orders?status=PLACED');
     if (res.status === 401) { router.push('/admin/login'); return; }
-    const data = await res.json();
-    setStats(data);
+    const placed = await res.json();
 
-    const res2 = await fetch('/api/waiter-call');
-    if (res2.ok) {
-      const calls = await res2.json();
+    const res2 = await fetch('/api/orders?status=PREPARING');
+    const preparing = res2.ok ? await res2.json() : [];
+
+    const res3 = await fetch('/api/orders?status=READY');
+    const ready = res3.ok ? await res3.json() : [];
+
+    const all = [...placed, ...preparing, ...ready];
+    if (placed.length > lastCount.current && lastCount.current !== 0) beep();
+    lastCount.current = placed.length;
+    setOrders(all);
+
+    const res4 = await fetch('/api/waiter-call');
+    if (res4.ok) {
+      const calls = await res4.json();
       if (calls.length > lastWaiterCount.current && lastWaiterCount.current !== 0) beep();
       lastWaiterCount.current = calls.length;
       setWaiterCalls(calls);
     }
+
     setLoading(false);
   };
 
   useEffect(() => {
-    fetchAll();
-    const t = setInterval(fetchAll, 5000);
+    fetchOrders();
+    const t = setInterval(fetchOrders, 5000);
     return () => clearInterval(t);
   }, []);
 
@@ -67,7 +83,7 @@ export default function Dashboard() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ orderStatus: next }),
     });
-    fetchAll();
+    fetchOrders();
   };
 
   const resolveWaiterCall = async (id) => {
@@ -76,301 +92,245 @@ export default function Dashboard() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
     });
-    fetchAll();
+    fetchOrders();
   };
 
-  if (loading || !stats) {
-    return (
-      <AdminLayout active="/admin/dashboard">
-        <div className="flex items-center justify-center h-96">
-          <p className="text-[#8891a8] animate-pulse">Loading dashboard...</p>
-        </div>
-      </AdminLayout>
-    );
-  }
+  const logout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    router.push('/admin/login');
+  };
 
-  // Active orders (for kanban columns)
-  const activeOrders = stats.recentOrders.filter(o =>
-    ['PLACED', 'PREPARING', 'READY'].includes(o.orderStatus)
-  );
   const grouped = { PLACED: [], PREPARING: [], READY: [] };
-  activeOrders.forEach(o => { if (grouped[o.orderStatus]) grouped[o.orderStatus].push(o); });
+  orders.forEach((o) => { if (grouped[o.orderStatus]) grouped[o.orderStatus].push(o); });
 
-  // Hourly chart data — only show 8am to 11pm
-  const hourly = stats.hourly.slice(8, 24);
-  const maxHourly = Math.max(...hourly, 1);
-  const hourLabels = ['8', '9', '10', '11', '12', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'];
-
-  // Stat cards
-  const statCards = [
-    {
-      label: "Today's Revenue",
-      value: `₹${stats.revenue}`,
-      trend: stats.trends.revenue,
-      icon: '💰',
-      accent: 'from-[#4ade80] to-[#10b981]',
-    },
-    {
-      label: "Today's Orders",
-      value: stats.totalOrders,
-      trend: stats.trends.orders,
-      icon: '📋',
-      accent: 'from-[#60a5fa] to-[#3b82f6]',
-    },
-    {
-      label: 'Customers',
-      value: stats.uniqueCustomers,
-      trend: 0,
-      icon: '👥',
-      accent: 'from-[#a78bfa] to-[#8b5cf6]',
-    },
-    {
-      label: 'Cancelled',
-      value: stats.cancelled,
-      trend: 0,
-      icon: '✕',
-      accent: 'from-[#f87171] to-[#ef4444]',
-    },
-  ];
+  const totalOrders = grouped.PLACED.length + grouped.PREPARING.length + grouped.READY.length;
 
   return (
-    <AdminLayout active="/admin/dashboard">
-      {/* Waiter calls banner */}
+    <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-stone-950 to-emerald-900 relative overflow-x-hidden">
+      {/* Ambient gradient blobs */}
+      <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-emerald-500 rounded-full mix-blend-screen filter blur-3xl opacity-20 pointer-events-none"></div>
+      <div className="fixed bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-amber-500 rounded-full mix-blend-screen filter blur-3xl opacity-15 pointer-events-none"></div>
+      <div className="fixed top-1/2 left-1/2 w-[400px] h-[400px] bg-teal-500 rounded-full mix-blend-screen filter blur-3xl opacity-10 pointer-events-none"></div>
+
+      {/* ============ HEADER ============ */}
+      <header className="sticky top-0 z-30 backdrop-blur-xl bg-white/5 border-b border-white/10">
+        <div className="px-4 py-3 flex justify-between items-center gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <img
+              src="/logo.png"
+              alt="House Bird Cafe"
+              className="w-10 h-10 rounded-full bg-white/90 p-0.5 flex-shrink-0 ring-2 ring-white/20 shadow-lg"
+            />
+            <h1 className="text-base sm:text-xl font-serif font-bold tracking-wide text-white truncate">
+              <span className="hidden sm:inline">House Bird Cafe · Kitchen</span>
+              <span className="sm:hidden">House Bird Cafe</span>
+            </h1>
+          </div>
+
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <ThemeToggle className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20" />
+            <button
+              onClick={logout}
+              className="text-xs bg-red-500/80 hover:bg-red-500 backdrop-blur-md text-white px-3 py-2 rounded-xl border border-white/20 shadow-lg shadow-red-500/30 transition font-medium"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+
+        <nav className="flex gap-2 px-4 pb-3 overflow-x-auto">
+          <a href="/admin/analytics" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition">
+            📊 Analytics
+          </a>
+          <a href="/admin/history" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition">
+            📅 History
+          </a>
+          <a href="/admin/feedback" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition">
+            ⭐ Feedback
+          </a>
+          <a href="/admin/menu" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition">
+            📋 Menu
+          </a>
+          <a href="/admin/tables" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition">
+            🔳 QR Codes
+          </a>
+        </nav>
+      </header>
+
+      {/* ============ WAITER CALLS BANNER ============ */}
       {waiterCalls.length > 0 && (
-        <div className="mb-5 bg-red-500/10 border-2 border-red-500/40 rounded-2xl p-4">
-          <h2 className="font-bold text-red-300 text-base mb-3 flex items-center gap-2">
-            🔔 Waiter Calls
-            <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-              {waiterCalls.length}
-            </span>
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-            {waiterCalls.map(call => (
-              <div key={call._id} className="bg-[#141824] border border-red-500/40 rounded-xl p-3 flex items-center gap-3 animate-pulse">
-                <span className="text-2xl">
-                  {call.callType === 'WATER' ? '💧' : call.callType === 'BILL' ? '🧾' : '🛎️'}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm">Table {call.tableNumber}</p>
-                  <p className="text-xs text-[#8891a8]">
-                    {call.callType === 'WATER' ? 'Water' : call.callType === 'BILL' ? 'Bill' : 'Assistance'}
-                  </p>
-                </div>
-                <button
-                  onClick={() => resolveWaiterCall(call._id)}
-                  className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold"
+        <div className="relative z-20 p-3 sm:p-4">
+          <div className="max-w-7xl mx-auto bg-red-500/15 backdrop-blur-xl border-2 border-red-400/40 rounded-2xl p-3 sm:p-4 shadow-2xl shadow-red-500/20">
+            <h2 className="font-bold text-red-100 text-base sm:text-lg mb-2 sm:mb-3 flex items-center gap-2">
+              🔔 Waiter Calls
+              <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full shadow-lg">
+                {waiterCalls.length}
+              </span>
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
+              {waiterCalls.map((call) => (
+                <div
+                  key={call._id}
+                  className="bg-white/10 backdrop-blur-md border border-red-300/40 rounded-xl p-3 flex items-center gap-3 shadow-lg animate-pulse"
                 >
-                  Done
-                </button>
-              </div>
-            ))}
+                  <div className="text-3xl flex-shrink-0">
+                    {call.callType === 'WATER' ? '💧' : call.callType === 'BILL' ? '🧾' : '🛎️'}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-white text-sm">Table {call.tableNumber}</p>
+                    <p className="text-xs text-red-100/80 truncate">
+                      {call.callType === 'WATER' ? 'Bring Water' : call.callType === 'BILL' ? 'Get Bill' : 'Call Waiter'}
+                    </p>
+                    <p className="text-[10px] text-red-100/60">
+                      {new Date(call.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => resolveWaiterCall(call._id)}
+                    className="flex-shrink-0 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg font-bold text-xs shadow-lg shadow-red-500/40 border border-white/20"
+                  >
+                    Done
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
 
-      {/* Stat cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-5">
-        {statCards.map((card, i) => (
-          <div key={i} className="bg-[#141824] border border-[#1e2535] rounded-2xl p-4 hover:border-[#2a3348] transition">
-            <div className="flex items-start justify-between mb-3">
-              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${card.accent} flex items-center justify-center text-lg shadow-lg`}>
-                {card.icon}
-              </div>
-              {card.trend !== 0 && (
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                  card.trend > 0 ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'
-                }`}>
-                  {card.trend > 0 ? '↑' : '↓'} {Math.abs(card.trend)}%
-                </span>
-              )}
-            </div>
-            <p className="text-[10px] uppercase tracking-wide text-[#8891a8] font-bold">{card.label}</p>
-            <p className="text-2xl md:text-3xl font-bold text-white mt-1">{card.value}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Chart + Trending */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-5 mb-5">
-        {/* Chart */}
-        <div className="lg:col-span-2 bg-[#141824] border border-[#1e2535] rounded-2xl p-5">
-          <div className="flex justify-between items-center mb-5">
-            <div>
-              <h2 className="font-bold text-white text-base">Hourly Orders</h2>
-              <p className="text-xs text-[#8891a8] mt-0.5">Orders placed per hour today</p>
-            </div>
-          </div>
-          <div className="flex items-end justify-between gap-1 h-48 md:h-56">
-            {hourly.map((count, i) => {
-              const height = (count / maxHourly) * 100;
+      {/* ============ MOBILE TABS ============ */}
+      {!loading && (
+        <div className="md:hidden sticky top-[112px] z-20 px-3 pt-3">
+          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-1 flex shadow-xl">
+            {['PLACED', 'PREPARING', 'READY'].map((status) => {
+              const isActive = mobileTab === status;
               return (
-                <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
-                  <div className="relative w-full h-full flex items-end">
-                    <div
-                      className="w-full rounded-t-md bg-gradient-to-t from-[#10b981]/40 to-[#4ade80] transition-all hover:from-[#10b981] hover:to-[#86efac]"
-                      style={{ height: `${Math.max(height, 3)}%` }}
-                    >
-                      {count > 0 && (
-                        <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-[#4ade80] opacity-0 group-hover:opacity-100 transition">
-                          {count}
-                        </div>
-                      )}
-                    </div>
+                <button
+                  key={status}
+                  onClick={() => setMobileTab(status)}
+                  className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition relative overflow-hidden ${
+                    isActive
+                      ? `bg-gradient-to-r ${STATUS_ACCENT[status]} text-white shadow-lg`
+                      : 'text-white/60 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center justify-center gap-1.5">
+                    <span>{STATUS_LABEL[status]}</span>
+                    {grouped[status].length > 0 && (
+                      <span className={`text-[10px] rounded-full px-1.5 py-0.5 font-bold ${
+                        isActive ? 'bg-white/30 text-white' : 'bg-white/10 text-white/70'
+                      }`}>
+                        {grouped[status].length}
+                      </span>
+                    )}
                   </div>
-                  <span className="text-[9px] md:text-[10px] text-[#6b7280] font-medium">{hourLabels[i]}</span>
-                </div>
+                </button>
               );
             })}
           </div>
         </div>
+      )}
 
-        {/* Trending items */}
-        <div className="bg-[#141824] border border-[#1e2535] rounded-2xl p-5">
-          <h2 className="font-bold text-white text-base mb-4">Daily Trending</h2>
-          {stats.topItems.length === 0 ? (
-            <p className="text-xs text-[#8891a8] italic text-center py-8">No orders yet today</p>
-          ) : (
-            <ul className="space-y-3">
-              {stats.topItems.map((item, i) => (
-                <li key={i} className="flex items-center gap-3 group">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#1e2535] to-[#252c40] flex items-center justify-center text-xs font-bold text-[#4ade80] flex-shrink-0">
-                    #{i + 1}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm text-white truncate">{item.name}</p>
-                    <p className="text-[10px] text-[#8891a8]">Order #{1000 + i}</p>
-                  </div>
-                  <span className="text-sm font-bold text-white flex-shrink-0">{item.count}×</span>
-                </li>
-              ))}
-            </ul>
-          )}
+      {/* ============ LOADING ============ */}
+      {loading ? (
+        <div className="flex items-center justify-center h-96 relative z-10">
+          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl px-8 py-6 shadow-2xl">
+            <p className="text-lg text-white/90 animate-pulse">Loading orders...</p>
+          </div>
         </div>
-      </div>
-
-      {/* Active orders */}
-      <div className="mb-5">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="font-bold text-white text-base">Live Orders</h2>
-          <span className="text-xs text-[#8891a8]">{activeOrders.length} active</span>
+      ) : totalOrders === 0 ? (
+        <div className="flex flex-col items-center justify-center h-96 p-6 text-center relative z-10">
+          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl px-8 py-10 shadow-2xl max-w-sm">
+            <div className="text-6xl mb-4">☕</div>
+            <p className="text-xl font-serif font-bold text-white">No active orders</p>
+            <p className="text-sm text-white/60 mt-2">Orders will appear here in real-time</p>
+          </div>
         </div>
-
-        {/* Mobile tabs */}
-        <div className="md:hidden bg-[#141824] border border-[#1e2535] rounded-xl p-1 flex mb-4">
-          {['PLACED', 'PREPARING', 'READY'].map(status => (
-            <button
+      ) : (
+        /* ============ ORDERS GRID ============ */
+        <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 p-3 md:p-6 max-w-7xl mx-auto">
+          {['PLACED', 'PREPARING', 'READY'].map((status) => (
+            <div
               key={status}
-              onClick={() => setMobileTab(status)}
-              className={`flex-1 py-2 rounded-lg text-xs font-bold transition ${
-                mobileTab === status ? 'bg-[#4ade80] text-black' : 'text-[#8891a8]'
-              }`}
+              className={`flex flex-col ${
+                mobileTab === status ? 'block' : 'hidden'
+              } md:block`}
             >
-              {STATUS_STYLE[status].label} ({grouped[status].length})
-            </button>
-          ))}
-        </div>
+              <div className="hidden md:flex justify-between items-center mb-4 px-2">
+                <h2 className="font-bold text-lg text-white uppercase tracking-wider">
+                  {status === 'PLACED' ? '🆕 New Orders' : status === 'PREPARING' ? '👨‍🍳 Preparing' : '✅ Ready to Serve'}
+                </h2>
+                <span className="bg-white/10 backdrop-blur-md border border-white/20 text-white font-bold px-3 py-1 rounded-full text-sm shadow-lg">
+                  {grouped[status].length}
+                </span>
+              </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {['PLACED', 'PREPARING', 'READY'].map(status => (
-            <div key={status} className={`${mobileTab === status ? 'block' : 'hidden'} md:block`}>
-              <p className="hidden md:block text-xs font-bold text-[#8891a8] uppercase tracking-wider mb-2 px-1">
-                {STATUS_STYLE[status].label} · {grouped[status].length}
-              </p>
-              <div className="space-y-3">
-                {grouped[status].map(order => (
-                  <div key={order._id} className="bg-[#141824] border border-[#1e2535] rounded-2xl p-4 hover:border-[#2a3348] transition">
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <p className="font-bold text-white">Table {order.tableNumber}</p>
-                        <p className="text-xs text-[#8891a8]">👤 {order.customerName}</p>
-                      </div>
-                      <span className="text-[10px] text-[#6b7280]">
+              <div className="space-y-3 md:space-y-4 flex-1">
+                {grouped[status].map((order) => (
+                  <div
+                    key={order._id}
+                    className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden group hover:bg-white/15 transition"
+                  >
+                    <div className={`h-1 bg-gradient-to-r ${STATUS_ACCENT[order.orderStatus]}`}></div>
+
+                    <div className="p-3 md:p-4 flex justify-between items-center border-b border-white/10">
+                      <span className="font-extrabold text-lg md:text-xl text-white">
+                        Table {order.tableNumber}
+                      </span>
+                      <span className="text-xs md:text-sm font-medium text-white/80 bg-white/10 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10">
                         {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
-                    <ul className="space-y-1 mb-3 text-xs">
-                      {order.items.slice(0, 4).map((it, i) => (
-                        <li key={i} className="flex justify-between text-[#b8bfd0]">
-                          <span><span className="text-[#4ade80] font-bold">{it.quantity}×</span> {it.name}</span>
-                          <span>₹{it.price * it.quantity}</span>
-                        </li>
-                      ))}
-                      {order.items.length > 4 && (
-                        <li className="text-[10px] text-[#6b7280] italic">+{order.items.length - 4} more</li>
-                      )}
-                    </ul>
-                    <div className="flex justify-between items-center pt-3 border-t border-[#1e2535] mb-3">
-                      <span className="text-xs text-[#8891a8]">Total</span>
-                      <span className="font-bold text-white">₹{order.totalAmount}</span>
+
+                    <div className="p-3 md:p-4">
+                      <p className="text-xs md:text-sm font-medium text-white/70 mb-2 md:mb-3 flex items-center gap-2">
+                        <span className="text-base md:text-lg">👤</span>
+                        <span className="truncate">{order.customerName}</span>
+                      </p>
+                      <ul className="space-y-1.5 md:space-y-2 mb-3 md:mb-4">
+                        {order.items.map((it, i) => (
+                          <li key={i} className="flex justify-between text-white text-sm md:text-base font-medium gap-2">
+                            <span className="flex items-center gap-1.5 md:gap-2 min-w-0">
+                              <span className="bg-emerald-400/30 text-emerald-100 text-[10px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 rounded border border-emerald-300/30 flex-shrink-0">
+                                {it.quantity}x
+                              </span>
+                              <span className="truncate">{it.name}</span>
+                            </span>
+                            <span className="text-white/70 flex-shrink-0">₹{it.price * it.quantity}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      <div className="flex justify-between items-center border-t border-white/10 pt-2 md:pt-3">
+                        <span className="font-bold text-white/70 text-sm md:text-base">Total</span>
+                        <span className="font-extrabold text-xl md:text-2xl text-white drop-shadow-lg">₹{order.totalAmount}</span>
+                      </div>
                     </div>
-                    {NEXT_STATUS[order.orderStatus] && (
-                      <button
-                        onClick={() => updateStatus(order._id, NEXT_STATUS[order.orderStatus].next)}
-                        className="w-full bg-[#4ade80] hover:bg-[#86efac] text-black py-2.5 rounded-xl font-bold text-sm transition active:scale-95"
-                      >
-                        {NEXT_STATUS[order.orderStatus].label}
-                      </button>
+
+                    {STATUS_FLOW[order.orderStatus] && (
+                      <div className="p-3 md:p-4">
+                        <button
+                          onClick={() => updateStatus(order._id, STATUS_FLOW[order.orderStatus].next)}
+                          className={`w-full text-white py-3 md:py-3.5 rounded-xl font-bold text-base md:text-lg shadow-xl transition-all duration-200 transform active:scale-95 bg-gradient-to-r ${STATUS_FLOW[order.orderStatus].gradient} ${STATUS_FLOW[order.orderStatus].hover} ${STATUS_FLOW[order.orderStatus].glow}`}
+                        >
+                          {STATUS_FLOW[order.orderStatus].label}
+                        </button>
+                      </div>
                     )}
                   </div>
                 ))}
+
                 {grouped[status].length === 0 && (
-                  <div className="border-2 border-dashed border-[#1e2535] rounded-2xl p-6 text-center">
-                    <p className="text-xs text-[#6b7280]">No orders</p>
+                  <div className="bg-white/5 backdrop-blur-md border-2 border-dashed border-white/20 rounded-2xl p-6 md:p-8 text-center text-white/40 text-sm">
+                    No orders in {STATUS_LABEL[status]}
                   </div>
                 )}
               </div>
             </div>
           ))}
         </div>
-      </div>
+      )}
 
-      {/* Recent orders table */}
-      <div className="bg-[#141824] border border-[#1e2535] rounded-2xl overflow-hidden">
-        <div className="p-5 border-b border-[#1e2535] flex justify-between items-center">
-          <h2 className="font-bold text-white text-base">Recent Orders</h2>
-          <a href="/admin/history" className="text-xs text-[#4ade80] hover:underline font-medium">View all →</a>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-[#0f1420]">
-              <tr className="text-left text-[10px] uppercase tracking-wider text-[#8891a8]">
-                <th className="p-3 font-bold">Order</th>
-                <th className="p-3 font-bold">Date</th>
-                <th className="p-3 font-bold">Customer</th>
-                <th className="p-3 font-bold">Status</th>
-                <th className="p-3 font-bold text-right">Amount</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#1e2535]">
-              {stats.recentOrders.map(order => {
-                const s = STATUS_STYLE[order.orderStatus] || STATUS_STYLE.DELIVERED;
-                return (
-                  <tr key={order._id} className="hover:bg-[#1a1f2e] transition">
-                    <td className="p-3">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#1e2535] to-[#252c40] flex items-center justify-center text-[10px] font-bold text-[#4ade80]">
-                          T{order.tableNumber}
-                        </div>
-                        <span className="font-medium text-white text-xs">#{order._id.slice(-6).toUpperCase()}</span>
-                      </div>
-                    </td>
-                    <td className="p-3 text-xs text-[#8891a8] whitespace-nowrap">
-                      {new Date(order.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
-                    </td>
-                    <td className="p-3 text-xs text-[#b8bfd0]">{order.customerName}</td>
-                    <td className="p-3">
-                      <span className={`text-[10px] font-bold px-2 py-1 rounded-md border ${s.bg} ${s.text} ${s.border}`}>
-                        {s.label}
-                      </span>
-                    </td>
-                    <td className="p-3 text-right font-bold text-white text-sm">₹{order.totalAmount}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </AdminLayout>
+      <div className="h-8"></div>
+    </div>
   );
 }
