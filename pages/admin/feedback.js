@@ -71,7 +71,7 @@ export default function AdminFeedback() {
             <button onClick={logout} className="text-xs bg-red-500/80 hover:bg-red-500 text-white px-3 py-2 rounded-xl border border-white/20 font-medium">Logout</button>
           </div>
         </div>
-        <nav className="flex gap-2 px-4 pb-3 overflow-x-auto">
+        <nav className="flex gap-2 px-4 pb-3 overflow-x-auto md:justify-center">
           <a href="/admin/dashboard" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">🏠 Dashboard</a>
           <a href="/admin/analytics" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">📊 Analytics</a>
           <a href="/admin/history" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">📅 History</a>

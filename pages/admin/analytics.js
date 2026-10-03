@@ -61,7 +61,7 @@ export default function Analytics() {
             </button>
           </div>
         </div>
-        <nav className="flex gap-2 px-4 pb-3 overflow-x-auto">
+        <nav className="flex gap-2 px-4 pb-3 overflow-x-auto md:justify-center">
           <a href="/admin/dashboard" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition">🏠 Dashboard</a>
           <a href="/admin/history" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition">📅 History</a>
           <a href="/admin/feedback" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition">⭐ Feedback</a>
