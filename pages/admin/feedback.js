@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import ThemeToggle from '../../components/ThemeToggle';
+import AdminNav from '../../components/AdminNav';
 
 export default function AdminFeedback() {
   const router = useRouter();
@@ -30,12 +31,8 @@ export default function AdminFeedback() {
     router.push('/admin/login');
   };
 
-  const filteredFeedbacks = filter === 'ALL'
-    ? feedbacks
-    : feedbacks.filter(f => f.rating === Number(filter));
-
+  const filteredFeedbacks = filter === 'ALL' ? feedbacks : feedbacks.filter(f => f.rating === Number(filter));
   const starDisplay = (rating) => '★'.repeat(rating) + '☆'.repeat(5 - rating);
-
   const ratingStyle = (r) => {
     if (r >= 4) return 'bg-emerald-400/20 text-emerald-200 border-emerald-300/30';
     if (r === 3) return 'bg-amber-400/20 text-amber-200 border-amber-300/30';
@@ -71,13 +68,7 @@ export default function AdminFeedback() {
             <button onClick={logout} className="text-xs bg-red-500/80 hover:bg-red-500 text-white px-3 py-2 rounded-xl border border-white/20 font-medium">Logout</button>
           </div>
         </div>
-        <nav className="flex gap-2 px-4 pb-3 overflow-x-auto md:justify-center">
-          <a href="/admin/dashboard" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">🏠 Dashboard</a>
-          <a href="/admin/analytics" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">📊 Analytics</a>
-          <a href="/admin/history" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">📅 History</a>
-          <a href="/admin/menu" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">📋 Menu</a>
-          <a href="/admin/tables" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">🔳 QR Codes</a>
-        </nav>
+        <AdminNav />
       </header>
 
       <div className="relative z-10 max-w-6xl mx-auto p-4 md:p-6">
@@ -150,9 +141,7 @@ export default function AdminFeedback() {
                 {f.tags && f.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mb-3">
                     {f.tags.map((tag, i) => (
-                      <span key={i} className="text-[10px] bg-emerald-400/20 border border-emerald-300/30 text-emerald-200 px-2.5 py-1 rounded-full font-medium">
-                        {tag}
-                      </span>
+                      <span key={i} className="text-[10px] bg-emerald-400/20 border border-emerald-300/30 text-emerald-200 px-2.5 py-1 rounded-full font-medium">{tag}</span>
                     ))}
                   </div>
                 )}

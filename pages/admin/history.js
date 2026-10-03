@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import ThemeToggle from '../../components/ThemeToggle';
+import AdminNav from '../../components/AdminNav';
 
 export default function OrderHistory() {
   const router = useRouter();
@@ -8,7 +9,6 @@ export default function OrderHistory() {
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [loading, setLoading] = useState(false);
   const [downloading, setDownloading] = useState(false);
-
   const [from, setFrom] = useState(new Date().toISOString().split('T')[0]);
   const [to, setTo] = useState(new Date().toISOString().split('T')[0]);
   const [status, setStatus] = useState('ALL');
@@ -63,7 +63,7 @@ export default function OrderHistory() {
     CANCELLED: 'bg-red-400/20 text-red-200 border-red-300/30',
   }[s] || 'bg-white/10 text-white/70 border-white/20');
 
-  const inputClass = "w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-2.5 text-sm text-white placeholder-white/40 focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none min-w-0";
+  const inputClass = "w-full max-w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-xl px-3 py-2.5 text-sm text-white placeholder-white/40 focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none";
   const labelClass = "block text-[10px] font-bold text-white/60 uppercase tracking-wide mb-1";
 
   return (
@@ -85,57 +85,31 @@ export default function OrderHistory() {
             <button onClick={logout} className="text-xs bg-red-500/80 hover:bg-red-500 text-white px-3 py-2 rounded-xl border border-white/20 font-medium">Logout</button>
           </div>
         </div>
-        <nav className="flex gap-2 px-4 pb-3 overflow-x-auto md:justify-center">
-          <a href="/admin/dashboard" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">🏠 Dashboard</a>
-          <a href="/admin/analytics" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">📊 Analytics</a>
-          <a href="/admin/feedback" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">⭐ Feedback</a>
-          <a href="/admin/menu" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">📋 Menu</a>
-          <a href="/admin/tables" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">🔳 QR Codes</a>
-        </nav>
+        <AdminNav />
       </header>
 
       <div className="relative z-10 max-w-6xl mx-auto p-4 md:p-6">
-        {/* ============ FILTERS ============ */}
         <form onSubmit={applyFilters} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 md:p-5 shadow-2xl mb-5">
-          {/* Row 1: Dates + Apply button */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
-            <div className="min-w-0">
+          <div className="space-y-3 md:space-y-0 md:grid md:grid-cols-3 md:gap-3 md:mb-3">
+            <div className="w-full overflow-hidden">
               <label className={labelClass}>From Date</label>
-              <input
-                type="date"
-                value={from}
-                onChange={(e) => setFrom(e.target.value)}
-                className={inputClass}
-              />
+              <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className={inputClass} />
             </div>
-            <div className="min-w-0">
+            <div className="w-full overflow-hidden">
               <label className={labelClass}>To Date</label>
-              <input
-                type="date"
-                value={to}
-                onChange={(e) => setTo(e.target.value)}
-                className={inputClass}
-              />
+              <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className={inputClass} />
             </div>
-            <div className="flex items-end">
-              <button
-                type="submit"
-                className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white rounded-xl py-2.5 font-bold shadow-lg shadow-emerald-500/30 text-sm transition"
-              >
+            <div className="w-full md:flex md:items-end">
+              <button type="submit" className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white rounded-xl py-2.5 font-bold shadow-lg shadow-emerald-500/30 text-sm transition">
                 Apply Filters
               </button>
             </div>
           </div>
 
-          {/* Row 2: Status + Table */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-            <div className="min-w-0">
+          <div className="space-y-3 md:space-y-0 md:grid md:grid-cols-2 md:gap-3 md:mb-3 mt-3 md:mt-0">
+            <div className="w-full overflow-hidden">
               <label className={labelClass}>Status</label>
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                className={inputClass}
-              >
+              <select value={status} onChange={(e) => setStatus(e.target.value)} className={inputClass}>
                 <option value="ALL">All Statuses</option>
                 <option value="PLACED">Placed</option>
                 <option value="PREPARING">Preparing</option>
@@ -144,13 +118,9 @@ export default function OrderHistory() {
                 <option value="CANCELLED">Cancelled</option>
               </select>
             </div>
-            <div className="min-w-0">
+            <div className="w-full overflow-hidden">
               <label className={labelClass}>Table</label>
-              <select
-                value={table}
-                onChange={(e) => setTable(e.target.value)}
-                className={inputClass}
-              >
+              <select value={table} onChange={(e) => setTable(e.target.value)} className={inputClass}>
                 <option value="ALL">All Tables</option>
                 {[...Array(20)].map((_, i) => (
                   <option key={i + 1} value={i + 1}>Table {i + 1}</option>
@@ -159,28 +129,16 @@ export default function OrderHistory() {
             </div>
           </div>
 
-          {/* Row 3: Quick ranges */}
-          <div className="flex flex-wrap gap-2 pt-3 border-t border-white/10">
+          <div className="flex flex-wrap gap-2 pt-3 mt-3 border-t border-white/10">
             <span className="text-[10px] font-bold text-white/50 py-1 uppercase">Quick:</span>
-            {[
-              { l: 'Today', d: 0 },
-              { l: 'Yesterday', d: 1 },
-              { l: 'Last 7 Days', d: 7 },
-              { l: 'Last 30 Days', d: 30 },
-            ].map((q) => (
-              <button
-                key={q.l}
-                type="button"
-                onClick={() => quickRange(q.d)}
-                className="text-[11px] bg-white/10 hover:bg-white/20 border border-white/20 px-3 py-1 rounded-full text-white font-medium transition"
-              >
+            {[{ l: 'Today', d: 0 }, { l: 'Yesterday', d: 1 }, { l: 'Last 7 Days', d: 7 }, { l: 'Last 30 Days', d: 30 }].map((q) => (
+              <button key={q.l} type="button" onClick={() => quickRange(q.d)} className="text-[11px] bg-white/10 hover:bg-white/20 border border-white/20 px-3 py-1 rounded-full text-white font-medium transition">
                 {q.l}
               </button>
             ))}
           </div>
         </form>
 
-        {/* ============ SUMMARY CARDS ============ */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
           <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl">
             <p className="text-[10px] font-bold text-white/60 uppercase">Orders</p>
@@ -190,27 +148,18 @@ export default function OrderHistory() {
             <p className="text-[10px] font-bold text-white/90 uppercase">Revenue</p>
             <p className="text-2xl md:text-3xl font-bold text-white mt-1">₹{totalRevenue}</p>
           </div>
-          <button
-            onClick={() => downloadCSV('csv')}
-            disabled={downloading || orders.length === 0}
-            className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl hover:bg-white/15 disabled:opacity-50 text-left transition"
-          >
+          <button onClick={() => downloadCSV('csv')} disabled={downloading || orders.length === 0} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl hover:bg-white/15 disabled:opacity-50 text-left transition">
             <p className="text-2xl">📥</p>
             <p className="text-xs font-bold text-white mt-1">{downloading ? 'Downloading...' : 'Full Orders'}</p>
             <p className="text-[10px] text-white/50">CSV</p>
           </button>
-          <button
-            onClick={() => downloadCSV('summary')}
-            disabled={downloading || orders.length === 0}
-            className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl hover:bg-white/15 disabled:opacity-50 text-left transition"
-          >
+          <button onClick={() => downloadCSV('summary')} disabled={downloading || orders.length === 0} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl hover:bg-white/15 disabled:opacity-50 text-left transition">
             <p className="text-2xl">📊</p>
             <p className="text-xs font-bold text-white mt-1">{downloading ? 'Downloading...' : 'Summary'}</p>
             <p className="text-[10px] text-white/50">CSV</p>
           </button>
         </div>
 
-        {/* ============ ORDERS LIST ============ */}
         {loading ? (
           <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-12 text-center">
             <p className="text-white/80 animate-pulse">Loading...</p>
@@ -221,7 +170,6 @@ export default function OrderHistory() {
           </div>
         ) : (
           <>
-            {/* Desktop table */}
             <div className="hidden md:block bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden">
               <table className="w-full text-sm">
                 <thead className="bg-white/5 border-b border-white/10">
@@ -256,7 +204,6 @@ export default function OrderHistory() {
               </table>
             </div>
 
-            {/* Mobile cards */}
             <div className="md:hidden space-y-3">
               {orders.map((o) => (
                 <div key={o._id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden">

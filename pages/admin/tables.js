@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import QRCode from 'qrcode';
 import ThemeToggle from '../../components/ThemeToggle';
+import AdminNav from '../../components/AdminNav';
 
 export default function Tables() {
   const router = useRouter();
@@ -14,11 +15,7 @@ export default function Tables() {
       const out = [];
       for (let i = 1; i <= tableCount; i++) {
         const url = `${baseUrl}/order?table=${i}`;
-        const dataUrl = await QRCode.toDataURL(url, {
-          width: 400,
-          margin: 1,
-          color: { dark: '#064e3b', light: '#ffffff' },
-        });
+        const dataUrl = await QRCode.toDataURL(url, { width: 400, margin: 1, color: { dark: '#064e3b', light: '#ffffff' } });
         out.push({ table: i, dataUrl, url });
       }
       setQrs(out);
@@ -50,23 +47,13 @@ export default function Tables() {
             <button onClick={logout} className="text-xs bg-red-500/80 hover:bg-red-500 text-white px-3 py-2 rounded-xl border border-white/20 font-medium">Logout</button>
           </div>
         </div>
-        <nav className="flex gap-2 px-4 pb-3 overflow-x-auto md:justify-center">
-          <a href="/admin/dashboard" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">🏠 Dashboard</a>
-          <a href="/admin/analytics" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">📊 Analytics</a>
-          <a href="/admin/history" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">📅 History</a>
-          <a href="/admin/feedback" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">⭐ Feedback</a>
-          <a href="/admin/menu" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">📋 Menu</a>
-        </nav>
+        <AdminNav />
       </header>
 
       <div className="relative z-10 max-w-6xl mx-auto p-4 md:p-6">
         <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 md:p-5 shadow-2xl mb-6 flex flex-wrap items-center gap-3">
           <label className="text-white font-medium text-sm">Number of tables:</label>
-          <input
-            type="number" min="1" max="50" value={tableCount}
-            onChange={(e) => setTableCount(Number(e.target.value))}
-            className="w-24 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-2 text-center text-white font-bold focus:ring-2 focus:ring-emerald-400 outline-none"
-          />
+          <input type="number" min="1" max="50" value={tableCount} onChange={(e) => setTableCount(Number(e.target.value))} className="w-24 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-2 text-center text-white font-bold focus:ring-2 focus:ring-emerald-400 outline-none" />
           <button onClick={() => window.print()} className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-emerald-500/30 transition text-sm">
             🖨️ Print All
           </button>
@@ -79,9 +66,7 @@ export default function Tables() {
               <div className="bg-white p-2 rounded-xl shadow-lg mb-3">
                 <img src={q.dataUrl} alt={`QR Table ${q.table}`} className="w-32 h-32 md:w-40 md:h-40" />
               </div>
-              <p className="text-[9px] text-white/40 break-all bg-white/5 p-1.5 rounded border border-white/10 w-full">
-                {q.url}
-              </p>
+              <p className="text-[9px] text-white/40 break-all bg-white/5 p-1.5 rounded border border-white/10 w-full">{q.url}</p>
             </div>
           ))}
         </div>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import ThemeToggle from '../../components/ThemeToggle';
+import AdminNav from '../../components/AdminNav';
 
 export default function Analytics() {
   const router = useRouter();
@@ -56,18 +57,10 @@ export default function Analytics() {
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             <ThemeToggle className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20" />
-            <button onClick={logout} className="text-xs bg-red-500/80 hover:bg-red-500 backdrop-blur-md text-white px-3 py-2 rounded-xl border border-white/20 shadow-lg shadow-red-500/30 transition font-medium">
-              Logout
-            </button>
+            <button onClick={logout} className="text-xs bg-red-500/80 hover:bg-red-500 backdrop-blur-md text-white px-3 py-2 rounded-xl border border-white/20 shadow-lg shadow-red-500/30 transition font-medium">Logout</button>
           </div>
         </div>
-        <nav className="flex gap-2 px-4 pb-3 overflow-x-auto md:justify-center">
-          <a href="/admin/dashboard" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition">🏠 Dashboard</a>
-          <a href="/admin/history" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition">📅 History</a>
-          <a href="/admin/feedback" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition">⭐ Feedback</a>
-          <a href="/admin/menu" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition">📋 Menu</a>
-          <a href="/admin/tables" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition">🔳 QR Codes</a>
-        </nav>
+        <AdminNav />
       </header>
 
       <div className="relative z-10 max-w-6xl mx-auto p-4 md:p-6">
@@ -106,10 +99,7 @@ export default function Analytics() {
                     <span className="font-bold text-white text-sm">{item.count}</span>
                   </div>
                   <div className="w-full bg-white/10 rounded-full h-2.5 overflow-hidden">
-                    <div
-                      className={`h-2.5 rounded-full bg-gradient-to-r ${item.gradient} transition-all duration-500`}
-                      style={{ width: `${stats.totalOrders > 0 ? (item.count / stats.totalOrders) * 100 : 0}%` }}
-                    ></div>
+                    <div className={`h-2.5 rounded-full bg-gradient-to-r ${item.gradient} transition-all duration-500`} style={{ width: `${stats.totalOrders > 0 ? (item.count / stats.totalOrders) * 100 : 0}%` }}></div>
                   </div>
                 </div>
               ))}
@@ -125,19 +115,10 @@ export default function Analytics() {
                 {stats.topItems.map((item, i) => (
                   <li key={i} className="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl p-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <span className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 ${
-                        i === 0 ? 'bg-gradient-to-br from-amber-300 to-amber-500 text-white shadow-lg shadow-amber-500/30' :
-                        i === 1 ? 'bg-white/20 text-white' :
-                        i === 2 ? 'bg-gradient-to-br from-orange-300 to-orange-500 text-white' :
-                        'bg-white/10 text-white/60'
-                      }`}>
-                        #{i + 1}
-                      </span>
+                      <span className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 ${i === 0 ? 'bg-gradient-to-br from-amber-300 to-amber-500 text-white shadow-lg shadow-amber-500/30' : i === 1 ? 'bg-white/20 text-white' : i === 2 ? 'bg-gradient-to-br from-orange-300 to-orange-500 text-white' : 'bg-white/10 text-white/60'}`}>#{i + 1}</span>
                       <span className="font-medium text-white truncate">{item.name}</span>
                     </div>
-                    <span className="font-bold text-emerald-300 bg-emerald-400/20 border border-emerald-300/30 px-3 py-1 rounded-full text-xs flex-shrink-0">
-                      {item.count} sold
-                    </span>
+                    <span className="font-bold text-emerald-300 bg-emerald-400/20 border border-emerald-300/30 px-3 py-1 rounded-full text-xs flex-shrink-0">{item.count} sold</span>
                   </li>
                 ))}
               </ul>

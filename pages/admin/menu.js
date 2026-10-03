@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import ThemeToggle from '../../components/ThemeToggle';
+import AdminNav from '../../components/AdminNav';
 
 const EMPTY = { name: '', description: '', price: '', category: 'General', imageUrl: '', isAvailable: true };
 
@@ -24,11 +25,7 @@ export default function AdminMenu() {
     const payload = { ...form, price: Number(form.price) };
     const url = editingId ? `/api/menu/${editingId}` : '/api/menu';
     const method = editingId ? 'PUT' : 'POST';
-    const res = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
+    const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     if (res.status === 401) { router.push('/admin/login'); return; }
     if (res.ok) { setForm(EMPTY); setEditingId(null); load(); }
     else alert('Failed: ' + (await res.json()).error);
@@ -36,14 +33,7 @@ export default function AdminMenu() {
   };
 
   const edit = (item) => {
-    setForm({
-      name: item.name,
-      description: item.description || '',
-      price: item.price,
-      category: item.category || 'General',
-      imageUrl: item.imageUrl || '',
-      isAvailable: item.isAvailable,
-    });
+    setForm({ name: item.name, description: item.description || '', price: item.price, category: item.category || 'General', imageUrl: item.imageUrl || '', isAvailable: item.isAvailable });
     setEditingId(item._id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -55,11 +45,7 @@ export default function AdminMenu() {
   };
 
   const toggle = async (item) => {
-    await fetch(`/api/menu/${item._id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ isAvailable: !item.isAvailable }),
-    });
+    await fetch(`/api/menu/${item._id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ isAvailable: !item.isAvailable }) });
     load();
   };
 
@@ -89,40 +75,25 @@ export default function AdminMenu() {
             <button onClick={logout} className="text-xs bg-red-500/80 hover:bg-red-500 text-white px-3 py-2 rounded-xl border border-white/20 font-medium">Logout</button>
           </div>
         </div>
-        <nav className="flex gap-2 px-4 pb-3 overflow-x-auto md:justify-center">
-          <a href="/admin/dashboard" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">🏠 Dashboard</a>
-          <a href="/admin/analytics" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">📊 Analytics</a>
-          <a href="/admin/history" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">📅 History</a>
-          <a href="/admin/feedback" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">⭐ Feedback</a>
-          <a href="/admin/tables" className="text-xs font-medium whitespace-nowrap px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">🔳 QR Codes</a>
-        </nav>
+        <AdminNav />
       </header>
 
       <div className="relative z-10 max-w-5xl mx-auto p-4 md:p-6">
         <form onSubmit={submit} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-5 md:p-6 shadow-2xl mb-6">
           <h2 className="text-lg font-bold text-white mb-4">{editingId ? '✏️ Edit Item' : '➕ Add New Item'}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <input required placeholder="Name (e.g. Cappuccino)" value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputClass} />
-            <input required type="number" placeholder="Price (₹)" value={form.price}
-              onChange={(e) => setForm({ ...form, price: e.target.value })} className={inputClass} />
-            <input placeholder="Category (e.g. Coffee)" value={form.category}
-              onChange={(e) => setForm({ ...form, category: e.target.value })} className={inputClass} />
-            <input placeholder="Image URL (optional)" value={form.imageUrl}
-              onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} className={inputClass} />
-            <textarea placeholder="Description" value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className={`${inputClass} md:col-span-2 resize-none`} rows={2} />
+            <input required placeholder="Name (e.g. Cappuccino)" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputClass} />
+            <input required type="number" placeholder="Price (₹)" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} className={inputClass} />
+            <input placeholder="Category (e.g. Coffee)" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className={inputClass} />
+            <input placeholder="Image URL (optional)" value={form.imageUrl} onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} className={inputClass} />
+            <textarea placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className={`${inputClass} md:col-span-2 resize-none`} rows={2} />
           </div>
           <div className="flex gap-3 mt-4">
             <button disabled={saving} className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-emerald-500/30 transition disabled:opacity-50">
               {saving ? 'Saving...' : (editingId ? 'Update Item' : 'Add Item')}
             </button>
             {editingId && (
-              <button type="button" onClick={() => { setForm(EMPTY); setEditingId(null); }}
-                className="bg-white/10 border border-white/20 text-white px-6 py-3 rounded-xl font-bold hover:bg-white/20 transition">
-                Cancel
-              </button>
+              <button type="button" onClick={() => { setForm(EMPTY); setEditingId(null); }} className="bg-white/10 border border-white/20 text-white px-6 py-3 rounded-xl font-bold hover:bg-white/20 transition">Cancel</button>
             )}
           </div>
         </form>
@@ -138,30 +109,17 @@ export default function AdminMenu() {
               <div className="flex justify-between items-start mb-2 gap-2">
                 <div className="min-w-0">
                   <p className="font-bold text-white truncate">{item.name}</p>
-                  <span className="text-[10px] font-bold text-emerald-200 bg-emerald-400/20 border border-emerald-300/30 px-2 py-0.5 rounded-full inline-block mt-1">
-                    {item.category}
-                  </span>
+                  <span className="text-[10px] font-bold text-emerald-200 bg-emerald-400/20 border border-emerald-300/30 px-2 py-0.5 rounded-full inline-block mt-1">{item.category}</span>
                 </div>
                 <span className="font-extrabold text-emerald-300 text-lg flex-shrink-0">₹{item.price}</span>
               </div>
-              {item.description && (
-                <p className="text-xs text-white/60 mb-3 line-clamp-2">{item.description}</p>
-              )}
+              {item.description && (<p className="text-xs text-white/60 mb-3 line-clamp-2">{item.description}</p>)}
               <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-white/10">
-                <button onClick={() => toggle(item)}
-                  className={`text-[11px] px-3 py-1.5 rounded-lg font-bold border transition ${
-                    item.isAvailable
-                      ? 'bg-emerald-400/20 text-emerald-200 border-emerald-300/30 hover:bg-emerald-400/30'
-                      : 'bg-red-400/20 text-red-200 border-red-300/30 hover:bg-red-400/30'
-                  }`}>
+                <button onClick={() => toggle(item)} className={`text-[11px] px-3 py-1.5 rounded-lg font-bold border transition ${item.isAvailable ? 'bg-emerald-400/20 text-emerald-200 border-emerald-300/30 hover:bg-emerald-400/30' : 'bg-red-400/20 text-red-200 border-red-300/30 hover:bg-red-400/30'}`}>
                   {item.isAvailable ? '✓ Available' : '✕ Sold Out'}
                 </button>
-                <button onClick={() => edit(item)} className="text-[11px] px-3 py-1.5 rounded-lg font-bold bg-blue-400/20 text-blue-200 border border-blue-300/30 hover:bg-blue-400/30 transition">
-                  Edit
-                </button>
-                <button onClick={() => remove(item._id)} className="text-[11px] px-3 py-1.5 rounded-lg font-bold bg-red-400/20 text-red-200 border border-red-300/30 hover:bg-red-400/30 transition">
-                  Delete
-                </button>
+                <button onClick={() => edit(item)} className="text-[11px] px-3 py-1.5 rounded-lg font-bold bg-blue-400/20 text-blue-200 border border-blue-300/30 hover:bg-blue-400/30 transition">Edit</button>
+                <button onClick={() => remove(item._id)} className="text-[11px] px-3 py-1.5 rounded-lg font-bold bg-red-400/20 text-red-200 border border-red-300/30 hover:bg-red-400/30 transition">Delete</button>
               </div>
             </div>
           ))}
