@@ -40,15 +40,27 @@ export default function ThemeToggle({ className = '' }) {
         <div className="absolute top-2 right-2 w-0.5 h-0.5 rounded-full bg-white/60"></div>
       </div>
 
-      {/* Sliding knob */}
+      {/* House Bird logo badge — centered behind the knob */}
+      <div className={`absolute top-1/2 -translate-y-1/2 transition-all duration-500 ${
+        isDark ? 'right-1.5 opacity-90' : 'left-1.5 opacity-90'
+      }`}>
+        <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center shadow-sm ring-1 ring-black/10">
+          <img
+            src="/logo.png"
+            alt=""
+            className="w-5 h-5 rounded-full"
+          />
+        </div>
+      </div>
+
+      {/* Sliding knob with sun/moon */}
       <div
-        className={`absolute top-0.5 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-500 ease-out shadow-lg ${
+        className={`absolute top-0.5 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-500 ease-out shadow-lg z-10 ${
           isDark
             ? 'left-0.5 bg-gradient-to-br from-indigo-500 to-purple-600 shadow-indigo-500/50'
             : 'left-6 bg-gradient-to-br from-amber-300 to-orange-400 shadow-amber-400/50'
         }`}
       >
-        {/* Icon crossfade */}
         <div className="relative w-4 h-4">
           <Sun
             size={16}
@@ -69,7 +81,7 @@ export default function ThemeToggle({ className = '' }) {
 
       {/* Glow ring on hover */}
       <div
-        className={`absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
+        className={`absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none ${
           isDark
             ? 'shadow-[0_0_15px_rgba(129,140,248,0.5)]'
             : 'shadow-[0_0_15px_rgba(251,191,36,0.5)]'
