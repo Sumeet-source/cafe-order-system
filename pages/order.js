@@ -138,7 +138,7 @@ export default function OrderPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-stone-900/70 to-stone-900/40 flex flex-col items-center justify-end pb-6 text-white">
           {/* Theme toggle top-right */}
           <div className="absolute top-4 right-4">
-            <ThemeToggle className="bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/30" />
+            <ThemeToggle />
           </div>
 
           {/* Logo */}
@@ -208,14 +208,14 @@ export default function OrderPage() {
         ))}
       </div>
 
-      {/* Floating Cart Button */}
+      {/* Floating Cart Button - FIXED: emerald gradient in both modes */}
       {cartEntries.length > 0 && (
         <div className="fixed bottom-6 left-0 right-0 flex justify-center px-4 z-30">
           <button
             onClick={() => setIsCartOpen(true)}
-            className="bg-stone-900 dark:bg-emerald-700 text-white px-6 py-4 rounded-full shadow-2xl flex items-center gap-4 hover:bg-stone-800 dark:hover:bg-emerald-600 transition transform hover:scale-105"
+            className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-6 py-4 rounded-full shadow-2xl shadow-emerald-500/40 flex items-center gap-4 transition transform hover:scale-105 ring-2 ring-emerald-400/30"
           >
-            <span className="bg-emerald-500 dark:bg-white dark:text-emerald-700 text-white font-bold rounded-full w-6 h-6 flex items-center justify-center text-sm shadow-inner">
+            <span className="bg-white text-emerald-700 font-bold rounded-full w-6 h-6 flex items-center justify-center text-sm shadow-inner">
               {cartEntries.reduce((s, [, { qty }]) => s + qty, 0)}
             </span>
             <span className="font-medium tracking-wide">View Cart • ₹{total}</span>
