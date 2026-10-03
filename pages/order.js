@@ -95,7 +95,7 @@ export default function OrderPage() {
         description: `Table ${table}`,
         order_id: createData.orderId,
         prefill: { name },
-        theme: { color: '#047857' },
+        theme: { color: '#60B246' },
         handler: async (response) => {
           const verifyRes = await fetch('/api/payment/verify', {
             method: 'POST',
@@ -196,14 +196,14 @@ export default function OrderPage() {
                         ₹{item.price}
                       </p>
                     </div>
-                      <button
-  disabled={!item.isAvailable}
-  onClick={() => addToCart(item)}
-  className="add-btn"
-  aria-label={`Add ${item.name} to cart`}
->
-  +
-</button>
+                    <button
+                      disabled={!item.isAvailable}
+                      onClick={() => addToCart(item)}
+                      className="add-btn"
+                      aria-label={`Add ${item.name} to cart`}
+                    >
+                      +
+                    </button>
                   </div>
                 ))}
             </div>
@@ -212,27 +212,29 @@ export default function OrderPage() {
       </div>
 
       {/* Zomato-style Cart Bar */}
-     {/* Zomato-style Cart Bar — compact */}
-{/* Zomato-style Cart Bar — narrow pill */}
-{cartEntries.length > 0 && (
-  <div className="fixed bottom-4 left-0 right-0 z-30 flex justify-center px-4 animate-slide-up">
-    <button
-  disabled={!item.isAvailable}
-  onClick={() => addToCart(item)}
-  className="add-btn"
-  aria-label={`Add ${item.name} to cart`}
->
-  +
-</button>
-  </div>
-)}
+      {cartEntries.length > 0 && (
+        <div className="fixed bottom-4 left-0 right-0 z-30 flex justify-center px-4 animate-slide-up">
+          <button
+            onClick={() => setIsCartOpen(true)}
+            className="bg-[#60B246] hover:bg-[#4e9a37] active:bg-[#3d7a2c] text-white px-5 py-2.5 rounded-full flex items-center gap-5 transition-colors duration-150 active:scale-[0.98]"
+          >
+            <span className={`text-sm font-semibold tracking-wide ${bump ? 'animate-bump' : ''}`}>
+              {itemCount} {itemCount === 1 ? 'item added' : 'items added'}
+            </span>
+            <span className="flex items-center gap-0.5 font-semibold text-sm border-l border-white/30 pl-4">
+              Continue
+              <span className="text-lg leading-none font-light">›</span>
+            </span>
+          </button>
+        </div>
+      )}
 
       {/* Call Waiter Button — hidden while cart has items */}
       {cartEntries.length === 0 && (
         <button
           onClick={() => setIsWaiterOpen(true)}
           disabled={waiterSent}
-          className={`fixed bottom-6 left-6 z-40 w-16 h-16 rounded-full shadow-2xl flex flex-col items-center justify-center text-white font-bold transition transform hover:scale-110 ${
+          className={`fixed bottom-6 left-6 z-40 w-16 h-16 rounded-full flex flex-col items-center justify-center text-white font-bold transition transform hover:scale-110 ${
             waiterSent
               ? 'bg-stone-400 cursor-not-allowed'
               : 'bg-red-600 hover:bg-red-700 animate-pulse'
@@ -337,7 +339,7 @@ export default function OrderPage() {
                       ₹{item.price * qty}
                     </p>
                   </div>
-                  <div className="flex items-center gap-3 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-full px-3 py-1 shadow-sm">
+                  <div className="flex items-center gap-3 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-full px-3 py-1">
                     <button
                       onClick={() => removeFromCart(id)}
                       className="text-xl font-bold text-stone-500 dark:text-stone-400 hover:text-emerald-600"
@@ -369,7 +371,7 @@ export default function OrderPage() {
               <button
                 onClick={handleCheckout}
                 disabled={loading}
-                className="force-white w-full bg-emerald-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-emerald-800 transition disabled:bg-stone-400 dark:disabled:bg-stone-700 shadow-md"
+                className="w-full bg-[#60B246] hover:bg-[#4e9a37] text-white py-4 rounded-xl font-bold text-lg transition disabled:bg-stone-400 dark:disabled:bg-stone-700"
               >
                 {loading ? 'Processing...' : `Pay ₹${total}`}
               </button>
