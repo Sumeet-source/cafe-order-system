@@ -135,7 +135,7 @@ export default function OrderPage() {
             'url("https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=1000&auto=format&fit=crop")',
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-stone-900/70 to-stone-900/40 flex flex-col items-center justify-end pb-6 text-white">
+        <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-stone-900/70 to-stone-900/40 flex flex-col items-center justify-end pb-6 text-white force-white">
           {/* Theme toggle top-right */}
           <div className="absolute top-4 right-4">
             <ThemeToggle />
