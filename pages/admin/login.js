@@ -22,7 +22,7 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-stone-950 to-emerald-900 relative flex items-center justify-center p-6 overflow-hidden">
+    <div className="min-h-screen bg-stone-950 relative flex items-center justify-center p-6 overflow-hidden">
       <div className="fixed top-[-20%] left-[-20%] w-[600px] h-[600px] bg-emerald-500 rounded-full mix-blend-screen filter blur-3xl opacity-20 pointer-events-none"></div>
       <div className="fixed bottom-[-20%] right-[-20%] w-[600px] h-[600px] bg-amber-500 rounded-full mix-blend-screen filter blur-3xl opacity-15 pointer-events-none"></div>
 

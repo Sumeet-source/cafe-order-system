@@ -53,9 +53,7 @@ export default function AdminMenu() {
   const inputClass = "w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-3 text-sm text-white placeholder-white/40 focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-stone-950 to-emerald-900 relative overflow-x-hidden">
-      <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-emerald-500 rounded-full mix-blend-screen filter blur-3xl opacity-20 pointer-events-none"></div>
-      <div className="fixed bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-amber-500 rounded-full mix-blend-screen filter blur-3xl opacity-15 pointer-events-none"></div>
+    <div className="min-h-screen bg-stone-950 relative overflow-x-hidden">
 
       <header className="sticky top-0 z-30 backdrop-blur-xl bg-white/5 border-b border-white/10">
         <div className="px-4 py-3 flex justify-between items-center gap-2">

@@ -14,19 +14,27 @@ export default function AdminFeedback() {
   const [filter, setFilter] = useState('ALL');
 
   useEffect(() => {
-    const fetchFeedback = async () => {
+  const fetchFeedback = async () => {
+    try {
       const res = await fetch('/api/feedback');
       if (res.status === 401) { router.push('/admin/login'); return; }
+      if (!res.ok) {
+        setLoading(false);
+        return;
+      }
       const data = await res.json();
       setFeedbacks(data.feedbacks || []);
       setAvgRating(data.avgRating || 0);
       setTotalReviews(data.totalReviews || 0);
       setDistribution(data.distribution || {});
+    } catch (e) {
+      console.error('Failed to load feedback:', e);
+    } finally {
       setLoading(false);
-    };
-    fetchFeedback();
-  }, [router]);
-
+    }
+  };
+  fetchFeedback();
+}, [router]);
   const filteredFeedbacks = filter === 'ALL' ? feedbacks : feedbacks.filter(f => f.rating === Number(filter));
   const starDisplay = (rating) => '★'.repeat(rating) + '☆'.repeat(5 - rating);
   const ratingStyle = (r) => {
@@ -37,7 +45,7 @@ export default function AdminFeedback() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-stone-950 to-emerald-900 flex items-center justify-center">
+      <div className="min-h-screen bg-stone-950 flex items-center justify-center">
         <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl px-8 py-6">
           <p className="text-white/90 animate-pulse">Loading feedback...</p>
         </div>
@@ -46,9 +54,7 @@ export default function AdminFeedback() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-stone-950 to-emerald-900 relative overflow-x-hidden">
-      <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-emerald-500 rounded-full mix-blend-screen filter blur-3xl opacity-20 pointer-events-none"></div>
-      <div className="fixed bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-amber-500 rounded-full mix-blend-screen filter blur-3xl opacity-15 pointer-events-none"></div>
+    <div className="min-h-screen bg-stone-950 relative overflow-x-hidden">
 
       <header className="sticky top-0 z-30 backdrop-blur-xl bg-white/5 border-b border-white/10">
         <div className="px-4 py-3 flex justify-between items-center gap-2">
