@@ -199,7 +199,7 @@ export default function OrderPage() {
                        <button
   disabled={!item.isAvailable}
   onClick={() => addToCart(item)}
-  className="shrink-0 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white w-10 h-10 rounded-full flex items-center justify-center text-xl font-bold transition-colors duration-150 disabled:bg-stone-300 dark:disabled:bg-stone-700"
+  className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-xl font-bold transition-colors duration-150 border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white active:bg-emerald-700 disabled:border-stone-300 disabled:text-stone-300 dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-500 dark:hover:text-white dark:disabled:border-stone-700 dark:disabled:text-stone-700"
 >
   +
 </button>
