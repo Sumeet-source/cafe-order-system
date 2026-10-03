@@ -17,13 +17,13 @@ export default function Success() {
 
         <div className="space-y-3">
           {orderId && (
-            <Link href={`/order/receipt?orderId=${orderId}`} className="block w-full bg-emerald-700 text-white px-6 py-4 rounded-xl font-bold hover:bg-emerald-800 transition shadow-md">
-              🧾 View / Download Receipt
-            </Link>
+            <Link href={`/order/receipt?orderId=${orderId}`} className="force-white block w-full bg-emerald-700 text-white px-6 py-4 rounded-xl font-bold hover:bg-emerald-800 transition shadow-md">
+  🧾 View / Download Receipt
+</Link>
           )}
-          <Link href={`/order?table=${table || 1}`} className="block w-full bg-stone-800 text-white px-6 py-4 rounded-xl font-bold hover:bg-stone-900 transition shadow-md">
-            Order More
-          </Link>
+          <Link href={`/order?table=${table || 1}`} className="force-white block w-full bg-stone-800 text-white px-6 py-4 rounded-xl font-bold hover:bg-stone-900 transition shadow-md">
+  Order More
+</Link>
         </div>
       </div>
     </div>

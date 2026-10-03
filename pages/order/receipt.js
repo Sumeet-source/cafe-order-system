@@ -168,7 +168,7 @@ export default function Receipt() {
         {/* Receipt Card */}
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-stone-200">
           {/* Header */}
-          <div className="bg-emerald-700 text-white p-6 text-center">
+          <div className="force-white bg-emerald-700 text-white p-6 text-center">
             <h2 className="text-xl font-serif font-bold">House Bird Cafe</h2>
             <p className="text-emerald-200 text-xs mt-1">Fresh Brews • Warm Vibes</p>
             <p className="text-[10px] text-emerald-200 mt-2">GSTIN: 27XXXXXXXXXXXXXZ5</p>
@@ -252,18 +252,18 @@ export default function Receipt() {
         {/* Actions */}
         <div className="mt-6 space-y-3">
           <button
-            onClick={downloadPDF}
-            disabled={downloading}
-            className="w-full bg-emerald-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-emerald-800 transition shadow-md disabled:bg-stone-400"
-          >
-            {downloading ? 'Generating...' : '📥 Download PDF Receipt'}
-          </button>
+  onClick={downloadPDF}
+  disabled={downloading}
+  className="force-white w-full bg-emerald-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-emerald-800 transition shadow-md disabled:bg-stone-400"
+>
+  {downloading ? 'Generating...' : '📥 Download PDF Receipt'}
+</button>
           <button
-            onClick={shareReceipt}
-            className="w-full bg-stone-800 text-white py-3 rounded-xl font-medium hover:bg-stone-900 transition"
-          >
-            📤 Share Receipt
-          </button>
+           onClick={shareReceipt}
+           className="force-white w-full bg-stone-800 text-white py-3 rounded-xl font-medium hover:bg-stone-900 transition"
+    >
+  📤 Share Receipt
+</button>
           <button
             onClick={() => window.print()}
             className="w-full bg-stone-200 text-stone-700 py-3 rounded-xl font-medium hover:bg-stone-300 transition"
