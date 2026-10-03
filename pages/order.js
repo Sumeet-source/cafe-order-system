@@ -196,13 +196,13 @@ export default function OrderPage() {
                         ₹{item.price}
                       </p>
                     </div>
-                    <button
-                      disabled={!item.isAvailable}
-                      onClick={() => addToCart(item)}
-                      className="shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white w-10 h-10 rounded-full flex items-center justify-center text-xl font-bold transition disabled:bg-stone-300 dark:disabled:bg-stone-700 shadow-sm"
-                    >
-                      +
-                    </button>
+                       <button
+  disabled={!item.isAvailable}
+  onClick={() => addToCart(item)}
+  className="shrink-0 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white w-10 h-10 rounded-full flex items-center justify-center text-xl font-bold transition-colors duration-150 disabled:bg-stone-300 dark:disabled:bg-stone-700"
+>
+  +
+</button>
                   </div>
                 ))}
             </div>
