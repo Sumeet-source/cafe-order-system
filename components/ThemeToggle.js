@@ -26,20 +26,6 @@ export default function ThemeToggle({ className = '' }) {
           : 'bg-gradient-to-r from-emerald-100 via-white to-emerald-50 border-emerald-300/70 shadow-lg shadow-emerald-300/40'
       } ${className}`}
     >
-      {/* Background sparkles (visible in dark mode) */}
-      <div className={`absolute inset-0 transition-opacity duration-500 ${isDark ? 'opacity-100' : 'opacity-0'}`}>
-        <div className="absolute top-1 left-2 w-0.5 h-0.5 rounded-full bg-emerald-200 animate-pulse"></div>
-        <div className="absolute top-4 left-3 w-0.5 h-0.5 rounded-full bg-emerald-100 animate-pulse" style={{ animationDelay: '0.3s' }}></div>
-        <div className="absolute top-2 right-4 w-0.5 h-0.5 rounded-full bg-emerald-200 animate-pulse" style={{ animationDelay: '0.6s' }}></div>
-      </div>
-
-      {/* Sun rays (visible in light mode) */}
-      <div className={`absolute inset-0 transition-opacity duration-500 ${isDark ? 'opacity-0' : 'opacity-100'}`}>
-        <div className="absolute top-1.5 left-1.5 w-1 h-1 rounded-full bg-emerald-400/70"></div>
-        <div className="absolute bottom-1.5 left-2 w-0.5 h-0.5 rounded-full bg-emerald-400/50"></div>
-        <div className="absolute top-2 right-2 w-0.5 h-0.5 rounded-full bg-emerald-400/50"></div>
-      </div>
-
       {/* House Bird logo badge — opposite side of the knob */}
       <div className={`absolute top-1/2 -translate-y-1/2 transition-all duration-500 ${
         isDark ? 'right-1.5' : 'left-1.5'
@@ -82,9 +68,7 @@ export default function ThemeToggle({ className = '' }) {
       </div>
 
       {/* Glow ring on hover */}
-      <div
-        className={`absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none shadow-[0_0_15px_rgba(16,185,129,0.5)]`}
-      ></div>
+      <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none shadow-[0_0_15px_rgba(16,185,129,0.5)]"></div>
     </button>
   );
 }
