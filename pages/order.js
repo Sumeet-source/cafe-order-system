@@ -196,10 +196,11 @@ export default function OrderPage() {
                         ₹{item.price}
                       </p>
                     </div>
-                       <button
+                      <button
   disabled={!item.isAvailable}
   onClick={() => addToCart(item)}
-  className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-xl font-bold transition-colors duration-150 border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white active:bg-emerald-700 disabled:border-stone-300 disabled:text-stone-300 dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-500 dark:hover:text-white dark:disabled:border-stone-700 dark:disabled:text-stone-700"
+  className="add-btn"
+  aria-label={`Add ${item.name} to cart`}
 >
   +
 </button>
@@ -216,17 +217,13 @@ export default function OrderPage() {
 {cartEntries.length > 0 && (
   <div className="fixed bottom-4 left-0 right-0 z-30 flex justify-center px-4 animate-slide-up">
     <button
-      onClick={() => setIsCartOpen(true)}
-      className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-5 py-2.5 rounded-full shadow-xl shadow-emerald-500/40 flex items-center gap-5 transition-all duration-300 active:scale-[0.98] ring-1 ring-emerald-400/30"
-    >
-      <span className={`text-sm font-semibold tracking-wide force-white ${bump ? 'animate-bump' : ''}`}>
-        {itemCount} {itemCount === 1 ? 'item added' : 'items added'}
-      </span>
-      <span className="flex items-center gap-0.5 font-semibold text-sm force-white border-l border-white/30 pl-4">
-        Continue
-        <span className="text-lg leading-none font-light">›</span>
-      </span>
-    </button>
+  disabled={!item.isAvailable}
+  onClick={() => addToCart(item)}
+  className="add-btn"
+  aria-label={`Add ${item.name} to cart`}
+>
+  +
+</button>
   </div>
 )}
 
