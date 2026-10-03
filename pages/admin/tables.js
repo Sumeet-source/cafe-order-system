@@ -43,7 +43,7 @@ export default function Tables() {
             </h1>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
-            <ThemeToggle className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20" />
+            <ThemeToggle />
             <button onClick={logout} className="text-xs bg-red-500/80 hover:bg-red-500 text-white px-3 py-2 rounded-xl border border-white/20 font-medium">Logout</button>
           </div>
         </div>

@@ -122,7 +122,7 @@ export default function Dashboard() {
             </h1>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
-            <ThemeToggle className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20" />
+            <ThemeToggle />
             <button onClick={logout} className="text-xs bg-red-500/80 hover:bg-red-500 backdrop-blur-md text-white px-3 py-2 rounded-xl border border-white/20 shadow-lg shadow-red-500/30 transition font-medium">
               Logout
             </button>

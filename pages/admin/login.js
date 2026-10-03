@@ -27,7 +27,7 @@ export default function AdminLogin() {
       <div className="fixed bottom-[-20%] right-[-20%] w-[600px] h-[600px] bg-amber-500 rounded-full mix-blend-screen filter blur-3xl opacity-15 pointer-events-none"></div>
 
       <div className="absolute top-4 right-4 z-10">
-        <ThemeToggle className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20" />
+        <ThemeToggle />
       </div>
 
       <form
