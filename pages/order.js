@@ -14,6 +14,7 @@ export default function OrderPage() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWaiterOpen, setIsWaiterOpen] = useState(false);
   const [waiterSent, setWaiterSent] = useState(false);
+  const [bump, setBump] = useState(false);
 
   useEffect(() => {
     fetch('/api/menu')
@@ -27,6 +28,8 @@ export default function OrderPage() {
       const existing = c[item._id];
       return { ...c, [item._id]: { item, qty: (existing?.qty || 0) + 1 } };
     });
+    setBump(true);
+    setTimeout(() => setBump(false), 300);
   };
 
   const removeFromCart = (id) => {
@@ -40,6 +43,7 @@ export default function OrderPage() {
   };
 
   const cartEntries = Object.entries(cart);
+  const itemCount = cartEntries.reduce((s, [, { qty }]) => s + qty, 0);
   const total = cartEntries.reduce((s, [, { item, qty }]) => s + item.price * qty, 0);
 
   const callWaiter = async (callType) => {
@@ -136,12 +140,10 @@ export default function OrderPage() {
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-stone-900/70 to-stone-900/40 flex flex-col items-center justify-end pb-6 text-white force-white">
-          {/* Theme toggle top-right */}
           <div className="absolute top-4 right-4">
             <ThemeToggle />
           </div>
 
-          {/* Logo */}
           <div className="bg-white rounded-full p-1 shadow-2xl ring-4 ring-white/30 mb-3">
             <img
               src="/logo.png"
@@ -208,37 +210,39 @@ export default function OrderPage() {
         ))}
       </div>
 
-      {/* Floating Cart Button - FIXED: emerald gradient in both modes */}
+      {/* Zomato-style Cart Bar */}
       {cartEntries.length > 0 && (
-        <div className="fixed bottom-6 left-0 right-0 flex justify-center px-4 z-30">
+        <div className="fixed bottom-6 left-4 right-4 z-30 flex justify-center animate-slide-up">
           <button
             onClick={() => setIsCartOpen(true)}
-            className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-6 py-4 rounded-full shadow-2xl shadow-emerald-500/40 flex items-center gap-4 transition transform hover:scale-105 ring-2 ring-emerald-400/30"
+            className="w-full max-w-md bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-5 py-4 rounded-2xl shadow-2xl shadow-emerald-500/40 flex items-center justify-between transition-all duration-300 active:scale-[0.98] ring-2 ring-emerald-400/30"
           >
-            <span className="bg-white text-emerald-700 font-bold rounded-full w-6 h-6 flex items-center justify-center text-sm shadow-inner">
-              {cartEntries.reduce((s, [, { qty }]) => s + qty, 0)}
+            <span className={`text-base font-bold tracking-wide force-white ${bump ? 'animate-bump' : ''}`}>
+              {itemCount} {itemCount === 1 ? 'item is added' : 'items are added'}
             </span>
-            <span className="font-medium tracking-wide">View Cart • ₹{total}</span>
+            <span className="flex items-center gap-1 font-semibold force-white">
+              Continue
+              <span className="text-2xl leading-none font-light">›</span>
+            </span>
           </button>
         </div>
       )}
 
-      {/* Call Waiter Button */}
       {/* Call Waiter Button — hidden while cart has items */}
-{cartEntries.length === 0 && (
-  <button
-    onClick={() => setIsWaiterOpen(true)}
-    disabled={waiterSent}
-    className={`fixed bottom-6 left-6 z-40 w-16 h-16 rounded-full shadow-2xl flex flex-col items-center justify-center text-white font-bold transition transform hover:scale-110 ${
-      waiterSent
-        ? 'bg-stone-400 cursor-not-allowed'
-        : 'bg-red-600 hover:bg-red-700 animate-pulse'
-    }`}
-  >
-    <span className="text-2xl">{waiterSent ? '✓' : '🛎️'}</span>
-    <span className="text-[10px] mt-0.5">{waiterSent ? 'Sent' : 'Call'}</span>
-  </button>
-)}
+      {cartEntries.length === 0 && (
+        <button
+          onClick={() => setIsWaiterOpen(true)}
+          disabled={waiterSent}
+          className={`fixed bottom-6 left-6 z-40 w-16 h-16 rounded-full shadow-2xl flex flex-col items-center justify-center text-white font-bold transition transform hover:scale-110 ${
+            waiterSent
+              ? 'bg-stone-400 cursor-not-allowed'
+              : 'bg-red-600 hover:bg-red-700 animate-pulse'
+          }`}
+        >
+          <span className="text-2xl">{waiterSent ? '✓' : '🛎️'}</span>
+          <span className="text-[10px] mt-0.5">{waiterSent ? 'Sent' : 'Call'}</span>
+        </button>
+      )}
 
       {/* Waiter Modal */}
       {isWaiterOpen && (
@@ -366,7 +370,7 @@ export default function OrderPage() {
               <button
                 onClick={handleCheckout}
                 disabled={loading}
-                className="w-full bg-emerald-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-emerald-800 transition disabled:bg-stone-400 dark:disabled:bg-stone-700 shadow-md"
+                className="force-white w-full bg-emerald-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-emerald-800 transition disabled:bg-stone-400 dark:disabled:bg-stone-700 shadow-md"
               >
                 {loading ? 'Processing...' : `Pay ₹${total}`}
               </button>
