@@ -85,3 +85,76 @@ select option {
   scrollbar-width: thin;
   scrollbar-color: rgba(255,255,255,0.2) rgba(255,255,255,0.05);
 }
+
+/* ============================================================
+   ADMIN LIGHT MODE — global overrides
+   When html has class="light", the admin dark glassmorphism
+   flips to a warm light glassmorphism automatically.
+   ============================================================ */
+
+html.light {
+  color-scheme: light;
+}
+
+/* Page background gradient: dark emerald → light cream */
+html.light .bg-gradient-to-br.from-emerald-950.via-stone-950.to-emerald-900 {
+  background: linear-gradient(135deg, #ecfdf5 0%, #fafaf9 50%, #fef3c7 100%) !important;
+}
+
+/* Ambient blobs: reduce intensity in light mode */
+html.light .mix-blend-screen {
+  mix-blend-mode: normal !important;
+  opacity: 0.15 !important;
+}
+
+/* -------- Text color flips -------- */
+html.light .text-white { color: #1c1917 !important; }
+html.light [class*="text-white\/"] { color: rgba(28, 25, 23, 0.7) !important; }
+
+/* Colored status texts (light shades → dark shades for light bg) */
+html.light [class*="text-emerald-100"] { color: #065f46 !important; }
+html.light [class*="text-emerald-200"] { color: #047857 !important; }
+html.light [class*="text-emerald-300"] { color: #059669 !important; }
+html.light [class*="text-amber-100"]   { color: #92400e !important; }
+html.light [class*="text-amber-200"]   { color: #b45309 !important; }
+html.light [class*="text-amber-300"]   { color: #d97706 !important; }
+html.light [class*="text-blue-200"]    { color: #1d4ed8 !important; }
+html.light [class*="text-blue-300"]    { color: #2563eb !important; }
+html.light [class*="text-red-100"]     { color: #991b1b !important; }
+html.light [class*="text-red-200"]     { color: #b91c1c !important; }
+html.light [class*="text-red-300"]     { color: #dc2626 !important; }
+
+/* -------- Glass backgrounds → lighter in light mode -------- */
+html.light [class*="bg-white\/5"]  { background-color: rgba(255, 255, 255, 0.55) !important; }
+html.light [class*="bg-white\/10"] { background-color: rgba(255, 255, 255, 0.7) !important; }
+html.light [class*="bg-white\/15"] { background-color: rgba(255, 255, 255, 0.8) !important; }
+html.light [class*="bg-white\/20"] { background-color: rgba(255, 255, 255, 0.9) !important; }
+
+/* -------- Borders → subtle dark in light mode -------- */
+html.light [class*="border-white\/10"] { border-color: rgba(0, 0, 0, 0.06) !important; }
+html.light [class*="border-white\/20"] { border-color: rgba(0, 0, 0, 0.1) !important; }
+html.light [class*="border-white\/30"] { border-color: rgba(0, 0, 0, 0.15) !important; }
+
+/* -------- Header sticky backdrop stays visible -------- */
+html.light header.sticky {
+  background-color: rgba(255, 255, 255, 0.75) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* -------- Keep gradient buttons colored (no change) -------- */
+/* Colors like from-emerald-400 to-teal-500 remain as-is */
+
+/* -------- Divider/border lines -------- */
+html.light .divide-white\/5 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+/* -------- Smooth transition when toggling -------- */
+html,
+body,
+header,
+nav,
+main,
+div {
+  transition: background-color 0.3s ease, color 0.2s ease, border-color 0.3s ease;
+}

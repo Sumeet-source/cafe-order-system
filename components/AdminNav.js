@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
 import {
+  LayoutDashboard,
   BarChart3,
   History,
   Star,
@@ -8,6 +9,7 @@ import {
 } from 'lucide-react';
 
 const NAV_ITEMS = [
+  { href: '/admin/dashboard', label: 'Dashboard', Icon: LayoutDashboard },
   { href: '/admin/analytics', label: 'Analytics', Icon: BarChart3 },
   { href: '/admin/history',   label: 'History',   Icon: History },
   { href: '/admin/feedback',  label: 'Feedback',  Icon: Star },
