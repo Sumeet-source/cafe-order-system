@@ -224,18 +224,21 @@ export default function OrderPage() {
       )}
 
       {/* Call Waiter Button */}
-      <button
-        onClick={() => setIsWaiterOpen(true)}
-        disabled={waiterSent}
-        className={`fixed bottom-6 left-6 z-40 w-16 h-16 rounded-full shadow-2xl flex flex-col items-center justify-center text-white font-bold transition transform hover:scale-110 ${
-          waiterSent
-            ? 'bg-stone-400 cursor-not-allowed'
-            : 'bg-red-600 hover:bg-red-700 animate-pulse'
-        }`}
-      >
-        <span className="text-2xl">{waiterSent ? '✓' : '🛎️'}</span>
-        <span className="text-[10px] mt-0.5">{waiterSent ? 'Sent' : 'Call'}</span>
-      </button>
+      {/* Call Waiter Button — hidden while cart has items */}
+{cartEntries.length === 0 && (
+  <button
+    onClick={() => setIsWaiterOpen(true)}
+    disabled={waiterSent}
+    className={`fixed bottom-6 left-6 z-40 w-16 h-16 rounded-full shadow-2xl flex flex-col items-center justify-center text-white font-bold transition transform hover:scale-110 ${
+      waiterSent
+        ? 'bg-stone-400 cursor-not-allowed'
+        : 'bg-red-600 hover:bg-red-700 animate-pulse'
+    }`}
+  >
+    <span className="text-2xl">{waiterSent ? '✓' : '🛎️'}</span>
+    <span className="text-[10px] mt-0.5">{waiterSent ? 'Sent' : 'Call'}</span>
+  </button>
+)}
 
       {/* Waiter Modal */}
       {isWaiterOpen && (
