@@ -211,22 +211,23 @@ export default function OrderPage() {
       </div>
 
       {/* Zomato-style Cart Bar */}
-      {cartEntries.length > 0 && (
-        <div className="fixed bottom-6 left-4 right-4 z-30 flex justify-center animate-slide-up">
-          <button
-            onClick={() => setIsCartOpen(true)}
-            className="w-full max-w-md bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-5 py-4 rounded-2xl shadow-2xl shadow-emerald-500/40 flex items-center justify-between transition-all duration-300 active:scale-[0.98] ring-2 ring-emerald-400/30"
-          >
-            <span className={`text-base font-bold tracking-wide force-white ${bump ? 'animate-bump' : ''}`}>
-              {itemCount} {itemCount === 1 ? 'item is added' : 'items are added'}
-            </span>
-            <span className="flex items-center gap-1 font-semibold force-white">
-              Continue
-              <span className="text-2xl leading-none font-light">›</span>
-            </span>
-          </button>
-        </div>
-      )}
+     {/* Zomato-style Cart Bar — compact */}
+{cartEntries.length > 0 && (
+  <div className="fixed bottom-4 left-4 right-4 z-30 flex justify-center animate-slide-up">
+    <button
+      onClick={() => setIsCartOpen(true)}
+      className="w-full max-w-md bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-4 py-2.5 rounded-xl shadow-xl shadow-emerald-500/40 flex items-center justify-between transition-all duration-300 active:scale-[0.98] ring-1 ring-emerald-400/30"
+    >
+      <span className={`text-sm font-semibold tracking-wide force-white ${bump ? 'animate-bump' : ''}`}>
+        {itemCount} {itemCount === 1 ? 'item added' : 'items added'}
+      </span>
+      <span className="flex items-center gap-0.5 font-semibold text-sm force-white">
+        Continue
+        <span className="text-lg leading-none font-light">›</span>
+      </span>
+    </button>
+  </div>
+)}
 
       {/* Call Waiter Button — hidden while cart has items */}
       {cartEntries.length === 0 && (
