@@ -212,16 +212,17 @@ export default function OrderPage() {
 
       {/* Zomato-style Cart Bar */}
      {/* Zomato-style Cart Bar — compact */}
+{/* Zomato-style Cart Bar — narrow pill */}
 {cartEntries.length > 0 && (
-  <div className="fixed bottom-4 left-4 right-4 z-30 flex justify-center animate-slide-up">
+  <div className="fixed bottom-4 left-0 right-0 z-30 flex justify-center px-4 animate-slide-up">
     <button
       onClick={() => setIsCartOpen(true)}
-      className="w-full max-w-md bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-4 py-2.5 rounded-xl shadow-xl shadow-emerald-500/40 flex items-center justify-between transition-all duration-300 active:scale-[0.98] ring-1 ring-emerald-400/30"
+      className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-5 py-2.5 rounded-full shadow-xl shadow-emerald-500/40 flex items-center gap-5 transition-all duration-300 active:scale-[0.98] ring-1 ring-emerald-400/30"
     >
       <span className={`text-sm font-semibold tracking-wide force-white ${bump ? 'animate-bump' : ''}`}>
         {itemCount} {itemCount === 1 ? 'item added' : 'items added'}
       </span>
-      <span className="flex items-center gap-0.5 font-semibold text-sm force-white">
+      <span className="flex items-center gap-0.5 font-semibold text-sm force-white border-l border-white/30 pl-4">
         Continue
         <span className="text-lg leading-none font-light">›</span>
       </span>
