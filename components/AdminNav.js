@@ -31,8 +31,8 @@ export default function AdminNav() {
             href={href}
             className={`group flex items-center gap-2 whitespace-nowrap px-3.5 py-2 rounded-xl border transition-all duration-200 ${
               isActive
-                ? 'bg-gradient-to-r from-emerald-500/30 to-teal-500/20 border-emerald-400/50 text-white shadow-lg shadow-emerald-500/20'
-                : 'bg-white/10 backdrop-blur-md border-white/20 text-white/80 hover:bg-white/20 hover:text-white hover:border-white/30 hover:shadow-lg'
+  ? 'bg-gradient-to-r from-emerald-500/30 to-teal-500/20 border-emerald-400/50 text-white'
+  : 'bg-white/10 backdrop-blur-md border-white/20 text-white/80 hover:bg-white/20 hover:text-white hover:border-white/30'
             }`}
           >
             <Icon

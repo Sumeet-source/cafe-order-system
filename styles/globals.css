@@ -202,3 +202,68 @@ html.dark .add-btn {
 html.dark .add-btn:disabled {
   background-color: #44403c; /* stone-700 */
 }
+/* ============ ADMIN BUTTONS — flat, no glow ============ */
+.admin-btn {
+  box-shadow: none !important;
+  filter: none !important;
+  outline: none;
+  border: none;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+
+.admin-btn:hover { opacity: 0.9; }
+.admin-btn:active { opacity: 0.8; }
+.admin-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Gradient variants */
+.admin-btn-amber {
+  background: linear-gradient(to right, #fbbf24, #f97316);
+  color: #fff;
+}
+.admin-btn-blue {
+  background: linear-gradient(to right, #60a5fa, #6366f1);
+  color: #fff;
+}
+.admin-btn-emerald {
+  background: linear-gradient(to right, #34d399, #14b8a6);
+  color: #fff;
+}
+.admin-btn-red {
+  background: #dc2626;
+  color: #fff;
+}
+.admin-btn-red:hover { background: #b91c1c; opacity: 1; }
+
+/* Flat outline variants for nav pills */
+.admin-pill {
+  box-shadow: none !important;
+  filter: none !important;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Kill any leftover shadows on admin cards/headers */
+html.dark .shadow-lg,
+html.dark .shadow-xl,
+html.dark .shadow-2xl {
+  box-shadow: none !important;
+}
+
+html.light .shadow-lg,
+html.light .shadow-xl,
+html.light .shadow-2xl {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Kill colored glow shadows globally */
+html.dark [class*="shadow-amber-"],
+html.dark [class*="shadow-blue-"],
+html.dark [class*="shadow-emerald-"],
+html.dark [class*="shadow-red-"],
+html.dark [class*="shadow-teal-"],
+html.dark [class*="shadow-indigo-"],
+html.dark [class*="shadow-purple-"],
+html.dark [class*="shadow-rose-"] {
+  box-shadow: none !important;
+}

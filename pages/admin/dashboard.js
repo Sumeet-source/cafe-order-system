@@ -5,11 +5,10 @@ import AdminNav from '../../components/AdminNav';
 import LogoutButton from '../../components/LogoutButton';
 
 const STATUS_FLOW = {
-  PLACED:    { next: 'PREPARING', label: 'Start Preparing', glow: 'shadow-amber-500/50',   gradient: 'from-amber-400 to-orange-500',   hover: 'hover:from-amber-300 hover:to-orange-400' },
-  PREPARING: { next: 'READY',     label: 'Mark Ready',       glow: 'shadow-blue-500/50',    gradient: 'from-blue-400 to-indigo-500',    hover: 'hover:from-blue-300 hover:to-indigo-400' },
-  READY:     { next: 'DELIVERED', label: 'Mark Delivered',   glow: 'shadow-emerald-500/50', gradient: 'from-emerald-400 to-teal-500',   hover: 'hover:from-emerald-300 hover:to-teal-400' },
+  PLACED:    { next: 'PREPARING', label: 'Start Preparing', cls: 'admin-btn-amber' },
+  PREPARING: { next: 'READY',     label: 'Mark Ready',       cls: 'admin-btn-blue' },
+  READY:     { next: 'DELIVERED', label: 'Mark Delivered',   cls: 'admin-btn-emerald' },
 };
-
 const STATUS_LABEL = {
   PLACED: '🆕 New',
   PREPARING: '👨‍🍳 Preparing',
@@ -147,9 +146,12 @@ export default function Dashboard() {
                       {new Date(call.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
-                  <button onClick={() => resolveWaiterCall(call._id)} className="flex-shrink-0 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg font-bold text-xs shadow-lg shadow-red-500/40 border border-white/20">
-                    Done
-                  </button>
+                  <button
+  onClick={() => resolveWaiterCall(call._id)}
+  className="admin-btn admin-btn-red flex-shrink-0 px-3 py-2 rounded-lg font-bold text-xs border border-white/20"
+>
+  Done
+</button>
                 </div>
               ))}
             </div>
@@ -203,7 +205,7 @@ export default function Dashboard() {
               </div>
               <div className="space-y-3 md:space-y-4 flex-1">
                 {grouped[status].map((order) => (
-                  <div key={order._id} className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden group hover:bg-white/15 transition">
+                  <div key={order._id} className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden group hover:bg-white/15 transition">
                     <div className={`h-1 bg-gradient-to-r ${STATUS_ACCENT[order.orderStatus]}`}></div>
                     <div className="p-3 md:p-4 flex justify-between items-center border-b border-white/10">
                       <span className="font-extrabold text-lg md:text-xl text-white">Table {order.tableNumber}</span>
@@ -234,9 +236,12 @@ export default function Dashboard() {
                     </div>
                     {STATUS_FLOW[order.orderStatus] && (
                       <div className="p-3 md:p-4">
-                        <button onClick={() => updateStatus(order._id, STATUS_FLOW[order.orderStatus].next)} className={`w-full text-white py-3 md:py-3.5 rounded-xl font-bold text-base md:text-lg shadow-xl transition-all duration-200 transform active:scale-95 bg-gradient-to-r ${STATUS_FLOW[order.orderStatus].gradient} ${STATUS_FLOW[order.orderStatus].hover} ${STATUS_FLOW[order.orderStatus].glow}`}>
-                          {STATUS_FLOW[order.orderStatus].label}
-                        </button>
+                        <button
+  onClick={() => updateStatus(order._id, STATUS_FLOW[order.orderStatus].next)}
+  className={`admin-btn ${STATUS_FLOW[order.orderStatus].cls} w-full py-3 md:py-3.5 rounded-xl font-bold text-base md:text-lg transform active:scale-95`}
+>
+  {STATUS_FLOW[order.orderStatus].label}
+</button>
                       </div>
                     )}
                   </div>
