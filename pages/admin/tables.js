@@ -25,7 +25,7 @@ export default function Tables() {
   }, [tableCount, baseUrl]);
 
   return (
-    <div className="min-h-screen bg-stone-950 relative overflow-x-hidden">
+    <div className="admin-shell min-h-screen bg-stone-950 relative overflow-x-hidden">
 
       <header className="sticky top-0 z-30 backdrop-blur-xl bg-white/5 border-b border-white/10">
         <div className="px-4 py-3 flex justify-between items-center gap-2">

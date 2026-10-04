@@ -64,7 +64,7 @@ export default function OrderHistory() {
   const labelClass = "block text-[10px] font-bold text-white/60 uppercase tracking-wide mb-1";
 
   return (
-    <div className="min-h-screen bg-stone-950 relative overflow-x-hidden">
+    <div className="admin-shell min-h-screen bg-stone-950 relative overflow-x-hidden">
 
       <header className="sticky top-0 z-30 backdrop-blur-xl bg-white/5 border-b border-white/10">
         <div className="px-4 py-3 flex justify-between items-center gap-2">

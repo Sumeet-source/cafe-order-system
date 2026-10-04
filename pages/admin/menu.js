@@ -53,7 +53,7 @@ export default function AdminMenu() {
   const inputClass = "w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-3 text-sm text-white placeholder-white/40 focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none";
 
   return (
-    <div className="min-h-screen bg-stone-950 relative overflow-x-hidden">
+    <div className="admin-shell min-h-screen bg-stone-950 relative overflow-x-hidden">
 
       <header className="sticky top-0 z-30 backdrop-blur-xl bg-white/5 border-b border-white/10">
         <div className="px-4 py-3 flex justify-between items-center gap-2">
