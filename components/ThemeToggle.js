@@ -26,9 +26,22 @@ export default function ThemeToggle({ className = '' }) {
           : 'bg-stone-200 border-stone-300'
       } ${className}`}
     >
-      {/* Sliding knob */}
+      {/* Logo badge — sits on opposite side of the knob */}
+      <div className={`absolute top-1/2 -translate-y-1/2 transition-all duration-300 ${
+        isDark ? 'right-1' : 'left-1'
+      }`}>
+        <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center overflow-hidden">
+          <img
+            src="/logo.png"
+            alt=""
+            className="w-5 h-5 rounded-full"
+          />
+        </div>
+      </div>
+
+      {/* Sliding knob with sun/moon */}
       <div
-        className={`absolute top-0.5 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
+        className={`absolute top-0.5 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300 ease-out z-10 ${
           isDark
             ? 'left-0.5 bg-emerald-600'
             : 'left-6 bg-emerald-500'
