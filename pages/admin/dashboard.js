@@ -29,8 +29,10 @@ export default function Dashboard() {
   const [waiterCalls, setWaiterCalls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [mobileTab, setMobileTab] = useState('PLACED');
-  const lastCount = useRef(0);
-  const lastWaiterCount = useRef(0);
+  const [connectionStatus, setConnectionStatus] = useState('connecting');
+
+  const lastPlacedIds = useRef(new Set());
+  const lastWaiterIds = useRef(new Set());
   const audioCtx = useRef(null);
 
   const beep = () => {
@@ -47,46 +49,119 @@ export default function Dashboard() {
     } catch {}
   };
 
-  const fetchOrders = async () => {
-    const res = await fetch('/api/orders?status=PLACED');
-    if (res.status === 401) { router.push('/admin/login'); return; }
-    const placed = await res.json();
+  const applyState = (state) => {
+    const placed = state.placed || [];
+    const preparing = state.preparing || [];
+    const ready = state.ready || [];
+    const calls = state.waiterCalls || [];
 
-    const res2 = await fetch('/api/orders?status=PREPARING');
-    const preparing = res2.ok ? await res2.json() : [];
+    // Detect new placed orders
+    const newPlacedIds = new Set(placed.map((o) => o._id));
+    const hasNewPlaced = placed.some((o) => !lastPlacedIds.current.has(o._id));
+    lastPlacedIds.current = newPlacedIds;
 
-    const res3 = await fetch('/api/orders?status=READY');
-    const ready = res3.ok ? await res3.json() : [];
+    // Detect new waiter calls
+    const newWaiterIds = new Set(calls.map((c) => c._id));
+    const hasNewWaiter = calls.some((c) => !lastWaiterIds.current.has(c._id));
+    lastWaiterIds.current = newWaiterIds;
 
-    const all = [...placed, ...preparing, ...ready];
-    if (placed.length > lastCount.current && lastCount.current !== 0) beep();
-    lastCount.current = placed.length;
-    setOrders(all);
+    // Beep on new arrivals (not on first load)
+    if (hasNewPlaced || hasNewWaiter) beep();
 
-    const res4 = await fetch('/api/waiter-call');
-    if (res4.ok) {
-      const calls = await res4.json();
-      if (calls.length > lastWaiterCount.current && lastWaiterCount.current !== 0) beep();
-      lastWaiterCount.current = calls.length;
-      setWaiterCalls(calls);
-    }
-
+    setOrders([...placed, ...preparing, ...ready]);
+    setWaiterCalls(calls);
     setLoading(false);
   };
 
+  // ============ SSE CONNECTION ============
   useEffect(() => {
-    fetchOrders();
-    const t = setInterval(fetchOrders, 5000);
-    return () => clearInterval(t);
+    let es = null;
+    let reconnectTimer = null;
+    let fallbackTimer = null;
+    let retries = 0;
+    let fallbackMode = false;
+    let cancelled = false;
+
+    const startPolling = () => {
+      fallbackMode = true;
+      setConnectionStatus('polling');
+      const poll = async () => {
+        if (cancelled) return;
+        try {
+          const [r1, r2, r3, r4] = await Promise.all([
+            fetch('/api/orders?status=PLACED'),
+            fetch('/api/orders?status=PREPARING'),
+            fetch('/api/orders?status=READY'),
+            fetch('/api/waiter-call'),
+          ]);
+          if (r1.status === 401) { router.push('/admin/login'); return; }
+          const placed = r1.ok ? await r1.json() : [];
+          const preparing = r2.ok ? await r2.json() : [];
+          const ready = r3.ok ? await r3.json() : [];
+          const calls = r4.ok ? await r4.json() : [];
+          applyState({ placed, preparing, ready, waiterCalls: calls });
+        } catch {}
+        if (!cancelled) fallbackTimer = setTimeout(poll, 5000);
+      };
+      poll();
+    };
+
+    const startSSE = () => {
+      if (cancelled) return;
+      setConnectionStatus('connecting');
+      try {
+        es = new EventSource('/api/realtime/stream');
+
+        es.addEventListener('init', (e) => {
+          retries = 0;
+          setConnectionStatus('live');
+          try {
+            applyState(JSON.parse(e.data));
+          } catch {}
+        });
+
+        es.addEventListener('update', (e) => {
+          setConnectionStatus('live');
+          try {
+            applyState(JSON.parse(e.data));
+          } catch {}
+        });
+
+        es.onerror = () => {
+          if (es) es.close();
+          es = null;
+          if (fallbackMode || cancelled) return;
+          retries++;
+          setConnectionStatus('reconnecting');
+          if (retries >= 3) {
+            startPolling();
+          } else {
+            reconnectTimer = setTimeout(startSSE, 2000);
+          }
+        };
+      } catch {
+        startPolling();
+      }
+    };
+
+    startSSE();
+
+    return () => {
+      cancelled = true;
+      if (es) es.close();
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      if (fallbackTimer) clearTimeout(fallbackTimer);
+    };
   }, []);
 
+  // ============ ACTIONS ============
   const updateStatus = async (id, next) => {
     await fetch(`/api/orders/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ orderStatus: next }),
     });
-    fetchOrders();
+    // SSE will auto-update within 2s
   };
 
   const resolveWaiterCall = async (id) => {
@@ -95,7 +170,7 @@ export default function Dashboard() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
     });
-    fetchOrders();
+    // SSE will auto-update
   };
 
   const grouped = { PLACED: [], PREPARING: [], READY: [] };
@@ -103,16 +178,36 @@ export default function Dashboard() {
 
   const totalOrders = grouped.PLACED.length + grouped.PREPARING.length + grouped.READY.length;
 
+  const statusColor = {
+    live: 'bg-emerald-500',
+    connecting: 'bg-amber-500',
+    reconnecting: 'bg-amber-500',
+    polling: 'bg-blue-500',
+  }[connectionStatus] || 'bg-stone-500';
+
+  const statusLabel = {
+    live: 'LIVE',
+    connecting: 'Connecting...',
+    reconnecting: 'Reconnecting...',
+    polling: 'Polling',
+  }[connectionStatus] || '';
+
   return (
-    <div className="admin-shell min-h-screen bg-stone-950 dark:bg-stone-950 relative overflow-x-hidden">
+    <div className="admin-shell min-h-screen bg-stone-950 relative overflow-x-hidden">
       <header className="sticky top-0 z-30 bg-stone-900/80 backdrop-blur-xl border-b border-white/10">
         <div className="px-4 py-3 flex justify-between items-center gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <img src="/logo.png" alt="House Bird Cafe" className="w-10 h-10 rounded-full bg-white/90 p-0.5 flex-shrink-0 ring-2 ring-white/20" />
-            <h1 className="text-base sm:text-xl font-serif font-bold tracking-wide text-white truncate">
-              <span className="hidden sm:inline">House Bird Cafe · Kitchen</span>
-              <span className="sm:hidden">House Bird Cafe</span>
-            </h1>
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-xl font-serif font-bold tracking-wide text-white truncate">
+                <span className="hidden sm:inline">House Bird Cafe · Kitchen</span>
+                <span className="sm:hidden">House Bird Cafe</span>
+              </h1>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className={`w-2 h-2 rounded-full ${statusColor} ${connectionStatus === 'live' ? 'animate-pulse' : ''}`}></span>
+                <span className="text-[10px] font-bold text-white/60 uppercase tracking-wide">{statusLabel}</span>
+              </div>
+            </div>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             <ThemeToggle />
@@ -155,13 +250,13 @@ export default function Dashboard() {
       )}
 
       {!loading && (
-        <div className="md:hidden sticky top-[112px] z-20 px-3 pt-3">
+        <div className="md:hidden sticky top-[124px] z-20 px-3 pt-3">
           <div className="bg-white/10 border border-white/20 rounded-2xl p-1 flex">
             {['PLACED', 'PREPARING', 'READY'].map((status) => {
               const isActive = mobileTab === status;
               const TabIcon = COLUMN_META[status].Icon;
               return (
-                <button key={status} onClick={() => setMobileTab(status)} className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition ${isActive ? 'bg-emerald-600 text-white' : 'text-white/60 hover:text-white'}`}>
+                <button key={status} onClick={() => setMobileTab(status)} className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-colors ${isActive ? 'bg-emerald-600 text-white' : 'text-white/60 hover:text-white'}`}>
                   <div className="flex items-center justify-center gap-1.5">
                     <TabIcon size={14} strokeWidth={2.5} />
                     <span>{COLUMN_META[status].short}</span>
