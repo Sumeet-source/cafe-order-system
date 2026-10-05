@@ -183,18 +183,30 @@ export default function OrderPage() {
                       !item.isAvailable ? 'opacity-50 grayscale' : ''
                     }`}
                   >
-                    <div className="flex-1 pr-4 min-w-0">
-                      <h3 className="font-bold text-stone-800 dark:text-stone-100 truncate">
-                        {item.name}
-                      </h3>
-                      {item.description && (
-                        <p className="text-sm text-stone-500 dark:text-stone-400 mt-1 line-clamp-2">
-                          {item.description}
-                        </p>
+                    <div className="flex gap-3 flex-1 pr-3 min-w-0">
+                      {item.imageUrl && (
+                        <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-stone-100 dark:bg-stone-800">
+                          <img
+                            src={item.imageUrl}
+                            alt={item.name}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        </div>
                       )}
-                      <p className="text-emerald-700 dark:text-emerald-400 font-bold mt-2">
-                        ₹{item.price}
-                      </p>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-stone-800 dark:text-stone-100 truncate">
+                          {item.name}
+                        </h3>
+                        {item.description && (
+                          <p className="text-sm text-stone-500 dark:text-stone-400 mt-1 line-clamp-2">
+                            {item.description}
+                          </p>
+                        )}
+                        <p className="text-emerald-700 dark:text-emerald-400 font-bold mt-2">
+                          ₹{item.price}
+                        </p>
+                      </div>
                     </div>
                     <button
                       disabled={!item.isAvailable}
@@ -331,15 +343,22 @@ export default function OrderPage() {
                   key={id}
                   className="flex justify-between items-center border-b border-stone-200 dark:border-stone-800 pb-4"
                 >
-                  <div>
-                    <p className="font-semibold text-stone-800 dark:text-stone-100">
-                      {item.name}
-                    </p>
-                    <p className="text-emerald-700 dark:text-emerald-400 font-bold">
-                      ₹{item.price * qty}
-                    </p>
+                  <div className="flex gap-3 items-center min-w-0 flex-1">
+                    {item.imageUrl && (
+                      <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-stone-100 dark:bg-stone-800">
+                        <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <p className="font-semibold text-stone-800 dark:text-stone-100 truncate">
+                        {item.name}
+                      </p>
+                      <p className="text-emerald-700 dark:text-emerald-400 font-bold">
+                        ₹{item.price * qty}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-full px-3 py-1">
+                  <div className="flex items-center gap-3 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-full px-3 py-1 flex-shrink-0">
                     <button
                       onClick={() => removeFromCart(id)}
                       className="text-xl font-bold text-stone-500 dark:text-stone-400 hover:text-emerald-600"
@@ -371,7 +390,7 @@ export default function OrderPage() {
               <button
                 onClick={handleCheckout}
                 disabled={loading}
-                className="w-full bg-[#60B246] hover:bg-[#4e9a37] text-white py-4 rounded-xl font-bold text-lg transition disabled:bg-stone-400 dark:disabled:bg-stone-700"
+                className="w-full bg-[#60B246] hover:bg-[#4e9a37] text-white py-4 rounded-xl font-bold text-lg transition-colors disabled:bg-stone-400 dark:disabled:bg-stone-700"
               >
                 {loading ? 'Processing...' : `Pay ₹${total}`}
               </button>
