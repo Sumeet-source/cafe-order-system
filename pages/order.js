@@ -15,6 +15,7 @@ export default function OrderPage() {
   const [isWaiterOpen, setIsWaiterOpen] = useState(false);
   const [waiterSent, setWaiterSent] = useState(false);
   const [bump, setBump] = useState(false);
+  const [recentlyAdded, setRecentlyAdded] = useState(null);
 
   useEffect(() => {
     fetch('/api/menu')
@@ -30,6 +31,10 @@ export default function OrderPage() {
     });
     setBump(true);
     setTimeout(() => setBump(false), 300);
+
+    // Show "Added!" highlight on the item
+    setRecentlyAdded(item._id);
+    setTimeout(() => setRecentlyAdded(null), 1500);
   };
 
   const removeFromCart = (id) => {
@@ -160,6 +165,26 @@ export default function OrderPage() {
         </div>
       </div>
 
+      {/* Cart Summary Banner (when items in cart) */}
+      {itemCount > 0 && (
+        <div className="sticky top-0 z-20 bg-[#60B246] text-white px-4 py-2.5 flex items-center justify-between shadow-md">
+          <div className="flex items-center gap-2">
+            <span className="bg-white/25 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
+              {itemCount}
+            </span>
+            <span className="text-sm font-semibold">
+              {itemCount === 1 ? '1 item in cart' : `${itemCount} items in cart`}
+            </span>
+          </div>
+          <button
+            onClick={() => setIsCartOpen(true)}
+            className="text-sm font-bold underline underline-offset-2 hover:no-underline"
+          >
+            View Cart →
+          </button>
+        </div>
+      )}
+
       {/* Menu Section */}
       <div className="max-w-3xl mx-auto px-4 py-6 pb-32">
         {menu.length === 0 && (
@@ -176,48 +201,102 @@ export default function OrderPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {menu
                 .filter((m) => (m.category || 'General') === cat)
-                .map((item) => (
-                  <div
-                    key={item._id}
-                    className={`bg-white dark:bg-stone-900 rounded-xl p-4 shadow-sm border border-stone-100 dark:border-stone-800 flex justify-between items-center transition hover:shadow-md hover:border-emerald-200 dark:hover:border-emerald-700 ${
-                      !item.isAvailable ? 'opacity-50 grayscale' : ''
-                    }`}
-                  >
-                    <div className="flex gap-3 flex-1 pr-3 min-w-0">
-                      {item.imageUrl && (
-                        <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-stone-100 dark:bg-stone-800">
-                          <img
-                            src={item.imageUrl}
-                            alt={item.name}
-                            className="w-full h-full object-cover"
-                            loading="lazy"
-                          />
+                .map((item) => {
+                  const cartItem = cart[item._id];
+                  const qty = cartItem?.qty || 0;
+                  const justAdded = recentlyAdded === item._id;
+
+                  return (
+                    <div
+                      key={item._id}
+                      className={`relative bg-white dark:bg-stone-900 rounded-xl p-4 border flex justify-between items-center transition-all duration-200 ${
+                        qty > 0
+                          ? 'border-[#60B246] ring-2 ring-[#60B246]/30 shadow-md'
+                          : 'border-stone-100 dark:border-stone-800 shadow-sm hover:shadow-md hover:border-emerald-200 dark:hover:border-emerald-700'
+                      } ${!item.isAvailable ? 'opacity-50 grayscale' : ''}`}
+                    >
+                      {/* "Added!" floating badge */}
+                      {justAdded && (
+                        <div className="absolute -top-2 -right-2 bg-[#60B246] text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-lg z-10 animate-bump">
+                          ✓ Added
                         </div>
                       )}
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-stone-800 dark:text-stone-100 truncate">
-                          {item.name}
-                        </h3>
-                        {item.description && (
-                          <p className="text-sm text-stone-500 dark:text-stone-400 mt-1 line-clamp-2">
-                            {item.description}
-                          </p>
+
+                      <div className="flex gap-3 flex-1 pr-3 min-w-0">
+                        {item.imageUrl && (
+                          <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-stone-100 dark:bg-stone-800">
+                            <img
+                              src={item.imageUrl}
+                              alt={item.name}
+                              className="w-full h-full object-cover"
+                              loading="lazy"
+                            />
+                            {/* Quantity overlay on image */}
+                            {qty > 0 && (
+                              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                <span className="bg-[#60B246] text-white font-extrabold rounded-full w-8 h-8 flex items-center justify-center text-sm">
+                                  {qty}
+                                </span>
+                              </div>
+                            )}
+                          </div>
                         )}
-                        <p className="text-emerald-700 dark:text-emerald-400 font-bold mt-2">
-                          ₹{item.price}
-                        </p>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-bold text-stone-800 dark:text-stone-100 truncate">
+                              {item.name}
+                            </h3>
+                            {qty > 0 && !item.imageUrl && (
+                              <span className="bg-[#60B246] text-white text-[10px] font-bold rounded-full px-2 py-0.5 flex-shrink-0">
+                                {qty} in cart
+                              </span>
+                            )}
+                          </div>
+                          {item.description && (
+                            <p className="text-sm text-stone-500 dark:text-stone-400 mt-1 line-clamp-2">
+                              {item.description}
+                            </p>
+                          )}
+                          <p className="text-emerald-700 dark:text-emerald-400 font-bold mt-2">
+                            ₹{item.price}
+                          </p>
+                        </div>
                       </div>
+
+                      {/* Add button OR Stepper */}
+                      {qty === 0 ? (
+                        <button
+                          disabled={!item.isAvailable}
+                          onClick={() => addToCart(item)}
+                          className="add-btn"
+                          aria-label={`Add ${item.name} to cart`}
+                        >
+                          +
+                        </button>
+                      ) : (
+                        <div className="flex items-center gap-1 bg-[#60B246] rounded-full px-1 flex-shrink-0 shadow-sm">
+                          <button
+                            onClick={() => removeFromCart(item._id)}
+                            className="w-8 h-8 flex items-center justify-center text-white font-bold text-xl hover:bg-white/10 rounded-full transition"
+                            aria-label="Remove one"
+                          >
+                            −
+                          </button>
+                          <span className="text-white font-extrabold text-base w-6 text-center">
+                            {qty}
+                          </span>
+                          <button
+                            onClick={() => addToCart(item)}
+                            className="w-8 h-8 flex items-center justify-center text-white font-bold text-xl hover:bg-white/10 rounded-full transition"
+                            aria-label="Add one"
+                          >
+                            +
+                          </button>
+                        </div>
+                      )}
                     </div>
-                    <button
-                      disabled={!item.isAvailable}
-                      onClick={() => addToCart(item)}
-                      className="add-btn"
-                      aria-label={`Add ${item.name} to cart`}
-                    >
-                      +
-                    </button>
-                  </div>
-                ))}
+                  );
+                })}
             </div>
           </div>
         ))}
