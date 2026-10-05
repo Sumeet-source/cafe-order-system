@@ -32,7 +32,6 @@ export default function OrderPage() {
     setBump(true);
     setTimeout(() => setBump(false), 300);
 
-    // Show "Added!" highlight on the item
     setRecentlyAdded(item._id);
     setTimeout(() => setRecentlyAdded(null), 1500);
   };
@@ -165,26 +164,6 @@ export default function OrderPage() {
         </div>
       </div>
 
-      {/* Cart Summary Banner (when items in cart) */}
-      {itemCount > 0 && (
-        <div className="sticky top-0 z-20 bg-[#60B246] text-white px-4 py-2.5 flex items-center justify-between shadow-md">
-          <div className="flex items-center gap-2">
-            <span className="bg-white/25 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
-              {itemCount}
-            </span>
-            <span className="text-sm font-semibold">
-              {itemCount === 1 ? '1 item in cart' : `${itemCount} items in cart`}
-            </span>
-          </div>
-          <button
-            onClick={() => setIsCartOpen(true)}
-            className="text-sm font-bold underline underline-offset-2 hover:no-underline"
-          >
-            View Cart →
-          </button>
-        </div>
-      )}
-
       {/* Menu Section */}
       <div className="max-w-3xl mx-auto px-4 py-6 pb-32">
         {menu.length === 0 && (
@@ -215,7 +194,6 @@ export default function OrderPage() {
                           : 'border-stone-100 dark:border-stone-800 shadow-sm hover:shadow-md hover:border-emerald-200 dark:hover:border-emerald-700'
                       } ${!item.isAvailable ? 'opacity-50 grayscale' : ''}`}
                     >
-                      {/* "Added!" floating badge */}
                       {justAdded && (
                         <div className="absolute -top-2 -right-2 bg-[#60B246] text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-lg z-10 animate-bump">
                           ✓ Added
@@ -231,7 +209,6 @@ export default function OrderPage() {
                               className="w-full h-full object-cover"
                               loading="lazy"
                             />
-                            {/* Quantity overlay on image */}
                             {qty > 0 && (
                               <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                                 <span className="bg-[#60B246] text-white font-extrabold rounded-full w-8 h-8 flex items-center justify-center text-sm">
@@ -263,7 +240,6 @@ export default function OrderPage() {
                         </div>
                       </div>
 
-                      {/* Add button OR Stepper */}
                       {qty === 0 ? (
                         <button
                           disabled={!item.isAvailable}
